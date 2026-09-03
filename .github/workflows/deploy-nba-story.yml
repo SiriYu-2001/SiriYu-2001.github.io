@@ -1,0 +1,50 @@
+name: Deploy NBA salary-value story
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/deploy-nba-story.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-nba-salary-value-story
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore and validate the site payload
+        run: |
+          cat nba-salary-gini/.deploy-payload-* | tr -d '\n\r\t ' | base64 --decode > /tmp/nba-story.tar.gz
+          tar -xzf /tmp/nba-story.tar.gz -C .
+          python -m py_compile nba-salary-gini/build-story-data.py
+          node --check nba-salary-gini/story.js
+          test -s nba-salary-gini/index.html
+          test -s nba-salary-gini/story.css
+
+      - name: Rebuild compact public data
+        run: python nba-salary-gini/build-story-data.py
+
+      - name: Commit the completed story
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm nba-salary-gini/.deploy-payload-*
+          git add \
+            nba-salary-gini/index.html \
+            nba-salary-gini/story.css \
+            nba-salary-gini/story.js \
+            nba-salary-gini/build-story-data.py \
+            nba-salary-gini/data/story-data.json
+          git commit -m "Reframe NBA dashboard around salary surplus value"
+          git push
