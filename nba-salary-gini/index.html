@@ -60,7 +60,7 @@
       <div class="field wide">
         <span class="field-title">显示项</span>
         <div class="check-row">
-          <label><input id="showMilestones" type="checkbox" checked /> CBA 节点</label>
+          <label><input id="showMilestones" type="checkbox" checked /> 关键制度与媒体节点</label>
           <label><input id="include2026" type="checkbox" /> 2025–26 补充点</label>
         </div>
       </div>
@@ -98,6 +98,37 @@
       </article>
     </section>
 
+    <section class="interpretation-card card" aria-labelledby="interpretationTitle">
+      <div class="card-head interpretation-head">
+        <div>
+          <span class="section-kicker">Interpretation</span>
+          <h2 id="interpretationTitle">基尼系数上升意味着什么？</h2>
+          <p id="interpretationLead">数据载入后，这里会根据当前时间区间与样本口径给出动态解读。</p>
+        </div>
+        <span id="interpretationBadge" class="trend-badge neutral">等待数据</span>
+      </div>
+      <div class="interpretation-grid">
+        <article class="interpretation-item">
+          <span class="interpretation-number">01</span>
+          <h3>核心含义</h3>
+          <p id="interpretationMeaning">基尼越高，工资越集中于少数高薪球员。</p>
+        </article>
+        <article class="interpretation-item">
+          <span class="interpretation-number">02</span>
+          <h3>顶端集中度</h3>
+          <p id="interpretationConcentration">同时观察前 10% 球员的工资份额，避免只依赖单一指标。</p>
+        </article>
+        <article class="interpretation-item">
+          <span class="interpretation-number">03</span>
+          <h3>是否只是名单尾部效应</h3>
+          <p id="interpretationRobustness">对照固定 450 人口径，可判断双向合同、短期合同和数据覆盖扩张的影响。</p>
+        </article>
+      </div>
+      <div id="interpretationCaveat" class="interpretation-caveat">
+        基尼上升描述相对分配结构，不等于低薪球员的名义工资下降。
+      </div>
+    </section>
+
     <section class="chart-card card">
       <div class="card-head">
         <div>
@@ -107,13 +138,24 @@
         <div class="legend" aria-label="图例">
           <span class="legend-item"><span class="legend-line"></span>年度 Gini</span>
           <span id="smoothLegend" class="legend-item"><span class="legend-line smooth"></span>3 年均值</span>
-          <span class="legend-item"><span class="legend-line milestone"></span>CBA / 来源节点</span>
+          <span class="legend-item"><span class="legend-line event lockout"></span>停摆</span>
+          <span class="legend-item"><span class="legend-line event rules"></span>薪资规则</span>
+          <span class="legend-item"><span class="legend-line event media"></span>转播合同</span>
+          <span class="legend-item"><span class="legend-line event source"></span>数据源</span>
         </div>
       </div>
       <div class="chart-wrap">
-        <svg id="trendChart" viewBox="0 0 1120 500" role="img" aria-label="NBA 球员工资年度基尼系数折线图"></svg>
+        <svg id="trendChart" viewBox="0 0 1120 550" role="img" aria-label="NBA 球员工资年度基尼系数折线图及关键制度节点"></svg>
         <div id="trendTooltip" class="tooltip"></div>
       </div>
+      <div class="mobile-scroll-hint" aria-hidden="true">移动端可横向滑动查看完整时间轴与节点</div>
+      <div class="milestone-section-head">
+        <div>
+          <h3>关键节点说明</h3>
+          <p>颜色区分停摆、工资规则、全国转播合同和数据源变化；点击有数据的节点可跳到对应赛季。</p>
+        </div>
+      </div>
+      <div id="milestonePanel" class="milestone-panel" aria-live="polite"></div>
     </section>
 
     <section class="details-grid">
@@ -184,15 +226,34 @@
       </div>
 
       <details open>
-        <summary>时间边界与 CBA 节点</summary>
+        <summary>时间边界、停摆与工资规则节点</summary>
         <div>
           <p>
-            1998–99 是六个月停摆后的 50 场缩短赛季；1999 年 1 月达成新协议。因而图中保留 1998–99 作为过渡观察点，并把 1999–00 视为该协议下首个完整赛季。
+            1998–99 是六个月停摆后的 50 场缩短赛季；1999 年 1 月达成新协议。图中将停摆赛季与 1999–00 首个完整赛季分开标记。1999 CBA 首次设置个人顶薪，同时提高底薪并增加工资帽例外。
           </p>
           <p>
-            其他参考线标示 2005–06、2011–12、2017–18 和 2023–24 等协议阶段。节点用于提供制度背景，不代表折线在该处的变化可以直接解释为 CBA 的因果效果。
+            2005 CBA 缩短最高合同期限并降低年涨幅；2011 停摆后，收入分配接近 50–50、奢侈税更严、最高合同缩短至五年；2017 CBA 引入指定老将续约（超级顶薪）和双向合同；2023 CBA 新增第二土豪线并加强对高支出球队的补强限制。
           </p>
-          <p>劳资协议资料：<a href="https://nbpa.com/cba" target="_blank" rel="noreferrer">NBPA CBA 页面</a>；历史背景：<a href="https://nbpa.com/about" target="_blank" rel="noreferrer">NBPA 历史时间线</a>。</p>
+          <p>
+            这些节点提供制度背景，但折线在节点附近的变化不是自动的因果证据。劳资协议资料：<a href="https://www.nbpa.com/cba" target="_blank" rel="noreferrer">NBPA CBA 页面</a>；停摆历史：<a href="https://www.nbpa.com/about" target="_blank" rel="noreferrer">NBPA 历史时间线</a>。
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>转播合同、工资帽跳升与平滑</summary>
+        <div>
+          <p>
+            2014 年签订的 Disney / Turner 九年全国媒体协议从 2016–17 起生效。由于当时未采用工资帽平滑，新增收入造成一次性工资帽跳升，使恰逢自由球员年份的球员获得明显的签约时点红利。
+          </p>
+          <p>
+            2024 年公布的新一轮 11 年媒体协议由 Disney、NBCUniversal 和 Amazon 承接，从 2025–26 起生效并持续至 2035–36。图中分别标记“协议公布”和“协议生效”。现行机制将工资帽年度增幅限制在平滑路径上，因此新增媒体收入预计分散到多个赛季，而不是重复 2016–17 的单年暴涨。
+          </p>
+          <p>
+            官方资料：<a href="https://pr.nba.com/nba-partnerships-walt-disney-company-turner-broadcasting-system/" target="_blank" rel="noreferrer">2014 媒体协议</a>；
+            <a href="https://pr.nba.com/nba-statement-salary-cap/" target="_blank" rel="noreferrer">2015 年工资帽平滑说明</a>；
+            <a href="https://pr.nba.com/nba-walt-disney-company-nbcuniversal-amazon-prime-video-media-agreements/" target="_blank" rel="noreferrer">2024 新媒体协议</a>。
+          </p>
         </div>
       </details>
 
@@ -252,7 +313,8 @@
             <li>这是球员工资分布，不是球队总工资之间的分布，也不是球员财富或收入的完整衡量。</li>
             <li>数据源在 2018–19 发生切换，绝对水平的突变需要谨慎解读。</li>
             <li>停摆、缩水赛季、工资帽跳升、最低工资、顶薪规则、双向合同和名单制度都会改变分布。</li>
-            <li>折线属于描述性统计；识别 CBA 的因果影响需要结构断点、对照组或更完整的制度模型。</li>
+            <li>基尼上升不等于低薪球员名义工资下降；只要顶端增长更快，即使中位数上涨，Gini 仍可提高。</li>
+            <li>折线属于描述性统计；识别 CBA 或媒体合同的因果影响需要结构断点、对照组或更完整的制度模型。</li>
           </ul>
         </div>
       </details>
@@ -268,5 +330,6 @@
 
   <script src="./app-core.js"></script>
   <script src="./app-ui.js"></script>
+  <script src="./enhancements.js?v=20260903"></script>
 </body>
 </html>
