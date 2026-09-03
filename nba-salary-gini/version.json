@@ -1,0 +1,9 @@
+{
+  "version": "2026.09.03-bpm-distribution-v3",
+  "features": [
+    "BPM selection rationale",
+    "seasonal BPM median overlay on heatmap",
+    "annual BPM skewness chart with five-season average"
+  ],
+  "source_commit": "c7a81cf936e5671e3144efc591bfc18ac09e423c"
+}
