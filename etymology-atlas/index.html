@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>词源记忆图谱 · 3,748 个生词</title>
+  <style>
+    :root{--canvas:#f7f7f5;--surface:#fff;--soft:#f0f0ed;--ink:#20201e;--muted:#62625d;--line:#deded8;--control:#8b8b84;--primary:#5146a6;--primary-dark:#403586;--primary-soft:#eeecfa;--green:#257a52;--green-soft:#e9f4ee;--amber:#8a5713;--amber-soft:#f8f0df;--blue:#24677a;--blue-soft:#e6f3f5;--shadow:0 18px 48px rgba(31,29,24,.12);--ui:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--story:"Source Serif 4","Noto Serif SC","Songti SC",serif}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.6}button,input,select{font:inherit;color:inherit}button{cursor:pointer}a{color:var(--primary)}
+    .skip{position:fixed;left:12px;top:-60px;z-index:99;background:var(--ink);color:#fff;padding:10px 14px;border-radius:8px}.skip:focus{top:12px}
+    .topbar{height:60px;position:sticky;top:0;z-index:30;background:rgba(247,247,245,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.topbar-inner{max-width:1280px;height:100%;margin:auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.02em}.brand-mark{display:grid;place-items:center;width:30px;height:30px;color:#fff;background:var(--primary);border-radius:8px;font-family:var(--story);font-size:18px}.source-pill{border:1px solid var(--line);border-radius:999px;background:var(--surface);padding:5px 10px;color:var(--muted);font-size:12px}
+    .hero{max-width:1280px;margin:auto;padding:64px 32px 34px}.eyebrow{display:flex;align-items:center;gap:8px;color:var(--primary);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}.eyebrow:before{content:"";width:24px;height:2px;background:var(--primary)}h1{max-width:810px;margin:16px 0 15px;font-family:var(--story);font-size:clamp(38px,6vw,68px);font-weight:600;line-height:1.08;letter-spacing:-.035em}.hero-copy{max-width:740px;margin:0;color:var(--muted);font-size:17px}.metrics{display:flex;gap:32px;margin-top:34px;padding-top:22px;border-top:1px solid var(--line)}.metric strong{display:block;font-family:var(--story);font-size:25px;line-height:1.1}.metric span{font-size:12px;color:var(--muted)}
+    .toolbar-wrap{position:sticky;top:60px;z-index:25;background:linear-gradient(var(--canvas) 76%,rgba(247,247,245,0));padding:10px 0 18px}.toolbar{max-width:1280px;margin:auto;padding:0 32px;display:grid;grid-template-columns:minmax(280px,1fr) auto;gap:12px}.search{position:relative}.search svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted)}.search input{width:100%;height:48px;padding:0 48px 0 44px;border:1px solid var(--control);border-radius:10px;background:var(--surface);outline:none}.search input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}.clear{position:absolute;right:3px;top:2px;width:44px;height:44px;border:0;background:transparent;border-radius:7px;color:var(--muted);display:none}.clear:hover{background:var(--soft)}.controls{display:flex;gap:8px}.select,.filter-btn{height:48px;flex:0 0 auto;padding:0 14px;border:1px solid var(--control);border-radius:10px;background:var(--surface);white-space:nowrap}.filter-btn[aria-pressed="true"]{border-color:var(--primary);background:var(--primary-soft);color:var(--primary-dark)}
+    .layout{max-width:1280px;margin:auto;padding:0 32px 64px;display:grid;grid-template-columns:minmax(480px,1fr) minmax(390px,.78fr);gap:20px;align-items:start}.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}.list-head{height:50px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}.list-head strong{color:var(--ink)}
+    .word-list{min-height:500px;scroll-margin-top:136px}.word-row{width:100%;min-height:68px;display:grid;grid-template-columns:48px minmax(130px,.7fr) minmax(190px,1.4fr) 76px;gap:10px;align-items:center;padding:10px 16px;border:0;border-bottom:1px solid #ecece8;background:transparent;text-align:left}.word-row:hover{background:#fafaf8}.word-row.active{background:var(--primary-soft);box-shadow:inset 3px 0 var(--primary)}.rank{font-variant-numeric:tabular-nums;color:#6f6e69;font-size:12px}.word-name{font-family:var(--story);font-size:19px;font-weight:600;overflow-wrap:anywhere}.definition{color:var(--muted);font-size:13px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.freq{text-align:right;font-variant-numeric:tabular-nums;font-size:12px}.freq small{display:block;color:var(--muted)}
+    .pager{display:flex;align-items:center;justify-content:space-between;padding:14px 16px}.pager-info{color:var(--muted);font-size:12px}.pager-actions{display:flex;gap:6px}.icon-btn{height:44px;min-width:44px;padding:0 11px;border:1px solid var(--control);border-radius:8px;background:var(--surface)}.icon-btn:hover:not(:disabled){border-color:var(--ink);background:var(--soft)}.icon-btn:disabled{opacity:.4;cursor:not-allowed}
+    .detail{position:sticky;top:136px;min-height:588px;padding:26px}.detail-empty{min-height:530px;display:grid;place-items:center;text-align:center;color:var(--muted)}.detail-empty .orb{margin:auto auto 16px;width:62px;height:62px;display:grid;place-items:center;border-radius:50%;background:var(--primary-soft);color:var(--primary);font-family:var(--story);font-size:28px}.detail-top{display:flex;align-items:start;justify-content:space-between;gap:12px}.detail-rank{color:var(--primary);font-size:12px;font-weight:700;letter-spacing:.08em}.detail h2{margin:4px 0 4px;font-family:var(--story);font-size:42px;line-height:1.1;letter-spacing:-.02em;overflow-wrap:anywhere}.frequency-line{color:var(--muted);font-size:13px}.definition-full{margin:20px 0 24px;padding:14px 16px;background:var(--soft);border-radius:8px}.audit-note{margin:-14px 0 24px;padding:10px 12px;border:1px solid #ead7ad;border-radius:8px;background:#fff8e8;color:#71490e;font-size:12px}.section-label{margin:22px 0 9px;color:var(--muted);font-size:11px;font-weight:700;line-height:1.4;letter-spacing:.12em;text-transform:uppercase}.origin-path{display:flex;flex-wrap:wrap;align-items:center;gap:7px;list-style:none;margin:0;padding:0}.origin-path li{display:flex;align-items:center;gap:7px}.origin-path li:not(:last-child)::after{content:"→";color:#76756f}.origin-node{padding:7px 10px;border-radius:7px;background:var(--blue-soft);color:#174f5e;font-family:var(--story);font-size:14px}.morph{display:inline-flex;padding:7px 10px;border-radius:7px;background:var(--amber-soft);color:#68420c;font-size:13px}.story{margin:0;padding-left:16px;border-left:3px solid var(--primary);font-family:var(--story);font-size:17px;line-height:1.8}.confidence{display:inline-flex;align-items:center;gap:6px;margin-top:20px;padding:5px 9px;border-radius:999px;background:var(--green-soft);color:var(--green);font-size:11px;font-weight:700}.confidence.medium{background:var(--amber-soft);color:var(--amber)}.confidence.mnemonic{background:var(--soft);color:var(--muted)}.confidence:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}.source-note{margin-left:8px;color:var(--muted);font-size:11px}.detail-nav{display:flex;justify-content:space-between;gap:8px;margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}.detail-nav button{flex:1;min-height:44px;border:1px solid var(--control);border-radius:8px;background:var(--surface)}.detail-nav button:hover{background:var(--soft)}
+    .empty-results{padding:70px 24px;text-align:center;color:var(--muted)}mark{padding:0 1px;background:#ded8ff;color:inherit;border-radius:2px}.about{max-width:1280px;margin:0 auto 70px;padding:0 32px}.about-card{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;padding:28px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}.about h3{margin:0 0 8px;font-family:var(--story);font-size:25px}.about p{margin:0;color:var(--muted)}.legend{display:flex;flex-wrap:wrap;gap:8px;align-content:start}.legend span{padding:7px 10px;border-radius:999px;background:var(--soft);font-size:12px}.footer{padding:25px 32px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;text-align:center}
+    .mobile-close{display:none}.live{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}:focus-visible{outline:2px solid var(--primary);outline-offset:2px}@media(max-width:900px){.layout{grid-template-columns:1fr}.detail{display:none}.detail.mobile-open{display:block;position:fixed;inset:0;z-index:60;border:0;border-radius:0;overflow-y:auto;padding:22px 20px 80px}.mobile-close{display:block}.toolbar{grid-template-columns:1fr}.controls{overflow-x:auto;padding-bottom:3px}.layout{padding-bottom:38px}.about-card{grid-template-columns:1fr}.source-pill{display:none}}@media(max-width:620px){.topbar-inner,.hero,.toolbar,.layout,.about{padding-left:16px;padding-right:16px}.hero{padding-top:42px}.metrics{gap:18px;justify-content:space-between}.metric strong{font-size:21px}.word-row{grid-template-columns:36px minmax(0,.72fr) minmax(0,1.3fr);padding:10px 12px}.word-row .freq{display:none}.word-name{font-size:17px}.select{min-width:150px}.layout{gap:12px}.detail h2{font-size:34px}.about{margin-bottom:42px}}@media(max-width:360px){h1{font-size:33px;line-height:1.12}.controls{display:grid;grid-template-columns:1fr 1fr;overflow:visible}.select{min-width:0;width:100%}.filter-btn{width:100%;padding:0 8px}.word-row{grid-template-columns:minmax(82px,.75fr) minmax(0,1.25fr);gap:8px}.word-row .rank{display:none}.pager{padding:12px}.pager-info{max-width:145px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#list-title">跳到词表</a>
+  <header class="topbar"><div class="topbar-inner"><div class="brand"><span class="brand-mark" aria-hidden="true">W</span><span>词源记忆图谱</span></div><span class="source-pill">源自 Print.html · 离线可用</span></div></header>
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <div class="eyebrow">Word origin atlas</div>
+      <h1 id="page-title">从词根，看见词义<br>如何一路长出来。</h1>
+      <p class="hero-copy">把零散的拼写还原成语言迁徙、词根组合与语义转折。全表默认按 Google Books Ngrams 书面语词频从高到低排列，先记最常遇见的词。</p>
+      <div class="metrics" aria-label="词表概览"><div class="metric"><strong>3,748</strong><span>全部生词</span></div><div class="metric"><strong>2,558</strong><span>高／中置信词源</span></div><div class="metric"><strong>3</strong><span>记忆层次</span></div></div>
+    </section>
+    <div class="toolbar-wrap"><div class="toolbar">
+      <label class="search"><span class="live">搜索单词、词根或中文释义</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg><input id="search" type="search" autocomplete="off" placeholder="搜索单词、词根或中文释义…" aria-controls="word-list"><button class="clear" id="clear" type="button" aria-label="清空搜索">×</button></label>
+      <div class="controls" aria-label="筛选与排序"><select class="select" id="sort" aria-label="排序"><option value="frequency">词频：高到低</option><option value="alphabetical">字母：A 到 Z</option><option value="source">原词表顺序</option></select><button class="filter-btn" type="button" data-filter="high" aria-pressed="false">高置信</button><button class="filter-btn" type="button" data-filter="medium" aria-pressed="false">中置信</button><button class="filter-btn" type="button" data-filter="mnemonic" aria-pressed="false">助记线索</button></div>
+    </div></div>
+    <section class="layout" aria-label="词汇浏览器">
+      <div class="panel"><div class="list-head"><span><strong id="list-title" tabindex="-1"><span id="result-count">0</span> 个结果</strong></span><span>频次 / 百万词</span></div><div class="word-list" id="word-list" aria-label="按词频排列的生词"></div><div class="pager"><span class="pager-info" id="pager-info"></span><div class="pager-actions"><button class="icon-btn" id="prev-page" type="button" aria-label="上一页">←</button><button class="icon-btn" id="next-page" type="button" aria-label="下一页">→</button></div></div></div>
+      <aside class="panel detail" id="detail" aria-label="词条详情"><div class="detail-empty"><div><div class="orb">etym</div><strong>选择一个单词</strong><br><span>查看它跨越语言与年代的发展路径</span></div></div></aside>
+    </section>
+    <section class="about"><div class="about-card"><div><h3>怎样读这张图谱？</h3><p>“发展源流”说明词形与词义的迁徙；“构词抓手”帮助拆字；“记忆画面”是学习联想，不等同于学术词源。遇到灰色“助记线索”时，请把它当作记法而非历史断言。</p></div><div class="legend" aria-label="资料说明"><span>词义：Print.html</span><span>词频：Google Books Ngrams / Datamuse</span><span>词源核对：GCIDE 0.48.5</span><span>词源整理：简化学习线索</span><span>数据：全部内嵌，离线可用</span></div></div></section>
+  </main>
+  <footer class="footer">个人学习用词源索引 · 词频数值为每百万词出现次数 · 词源叙述为便于记忆的简化版本，严谨研究请复核专业词典</footer>
+  <div class="live" id="announcer" aria-live="polite"></div>
+    <script>window.__VOCAB_PARTS=[];</script>
+  <script src="data/part-00.js"></script>
+  <script src="data/part-01.js"></script>
+  <script src="data/part-02.js"></script>
+  <script src="data/part-03.js"></script>
+  <script src="data/part-04.js"></script>
+  <script src="data/part-05.js"></script>
+  <script src="data/part-06.js"></script>
+  <script src="data/part-07.js"></script>
+  <script src="data/part-08.js"></script>
+  <script src="data/part-09.js"></script>
+  <script src="data/part-10.js"></script>
+  <script src="data/part-11.js"></script>
+  <script src="data/part-12.js"></script>
+  <script src="data/part-13.js"></script>
+  <script src="data/part-14.js"></script>
+  <script src="data/part-15.js"></script>
+  <script src="data/part-16.js"></script>
+  <script src="data/part-17.js"></script>
+  <script src="data/part-18.js"></script>
+  <script src="data/part-19.js"></script>
+  <script src="data/part-20.js"></script>
+  <script src="data/part-21.js"></script>
+  <script src="data/part-22.js"></script>
+  <script src="data/part-23.js"></script>
+  <script src="data/part-24.js"></script>
+  <script src="data/part-25.js"></script>
+  <script src="data/part-26.js"></script>
+  <script src="data/part-27.js"></script>
+  <script src="data/part-28.js"></script>
+  <script src="data/part-29.js"></script>
+  <script src="data/part-30.js"></script>
+  <script src="data/part-31.js"></script>
+  <script src="data/part-32.js"></script>
+  <script src="data/part-33.js"></script>
+  <script src="data/part-34.js"></script>
+  <script src="data/part-35.js"></script>
+  <script src="data/part-36.js"></script>
+  <script src="data/part-37.js"></script>
+  <script src="data/part-38.js"></script>
+  <script src="data/part-39.js"></script>
+  <script src="data/part-40.js"></script>
+  <script src="data/part-41.js"></script>
+  <script src="data/part-42.js"></script>
+  <script src="data/part-43.js"></script>
+  <script src="data/part-44.js"></script>
+  <script src="data/part-45.js"></script>
+  <script src="data/part-46.js"></script>
+  <script>
+  (()=>{
+    const all=window.__VOCAB_PARTS.flat();delete window.__VOCAB_PARTS;
+    const fold=s=>String(s).toLocaleLowerCase();
+    all.forEach(x=>x._search=fold(`${x.word} ${x.definition} ${x.origin} ${x.morph} ${x.story}`));
+    const byWord=new Map(all.map(x=>[x.word.toLowerCase(),x])),byId=new Map(all.map(x=>[x.id,x]));
+    const state={query:'',sort:'frequency',filters:new Set(),page:1,pageSize:80,selected:null,results:[...all]};
+    const $=s=>document.querySelector(s),list=$('#word-list'),detail=$('#detail'),search=$('#search'),clear=$('#clear'),announcer=$('#announcer'),background=[...document.querySelectorAll('.topbar,.hero,.toolbar-wrap,.layout>.panel:first-child,.about,.footer')];
+    let returnFocusId=null,searchTimer=null;
+    const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const fmt=f=>f==null?'—':f>=100?Math.round(f).toLocaleString():f>=10?f.toFixed(1):f.toFixed(2);
+    const label={high:'高置信词源',medium:'中置信词源',mnemonic:'助记线索'};
+    const emptyDetail='<div class="detail-empty"><div><div class="orb">etym</div><strong>选择一个单词</strong><br><span>查看它跨越语言与年代的发展路径</span></div></div>';
+    function highlight(text,q){const safe=escape(text);if(!q)return safe;const needle=escape(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return safe.replace(new RegExp(`(${needle})`,'ig'),'<mark>$1</mark>')}
+    function apply(){const q=fold(state.query.trim());state.results=all.filter(x=>(!state.filters.size||state.filters.has(x.confidence))&&(!q||x._search.includes(q)));if(state.sort==='alphabetical')state.results.sort((a,b)=>a.word.localeCompare(b.word));else if(state.sort==='source')state.results.sort((a,b)=>a.id-b.id);const pages=Math.max(1,Math.ceil(state.results.length/state.pageSize));state.page=Math.min(state.page,pages);if(state.selected&&!state.results.some(x=>x.id===state.selected.id)){if(detail.classList.contains('mobile-open'))closeDetails(false);state.selected=null;detail.innerHTML=emptyDetail}renderList();$('#result-count').textContent=state.results.length.toLocaleString();announcer.textContent=`找到 ${state.results.length} 个词条`;clear.style.display=state.query?'block':'none'}
+    function renderList(){const start=(state.page-1)*state.pageSize,rows=state.results.slice(start,start+state.pageSize),q=state.query.trim();list.innerHTML=rows.length?rows.map(x=>`<button class="word-row${state.selected&&state.selected.id===x.id?' active':''}" type="button" aria-current="${state.selected&&state.selected.id===x.id?'true':'false'}" data-id="${x.id}"><span class="rank">#${x.rank}</span><span class="word-name" lang="en">${highlight(x.word,q)}</span><span class="definition">${highlight(x.definition,q)}</span><span class="freq">${fmt(x.frequency)}<small>/ million</small></span></button>`).join(''):`<div class="empty-results"><strong>没有找到匹配词条</strong><br>试试更短的单词、词根或中文关键词</div>`;const pages=Math.max(1,Math.ceil(state.results.length/state.pageSize));$('#pager-info').textContent=state.results.length?`第 ${state.page} / ${pages} 页 · ${start+1}–${Math.min(start+state.pageSize,state.results.length)}`:'0 个词条';$('#prev-page').disabled=state.page<=1;$('#next-page').disabled=state.page>=pages}
+    function select(item,push=true){if(!item)return;const keepListFocus=document.activeElement?.classList.contains('word-row');returnFocusId=item.id;state.selected=item;renderList();const nodes=item.origin.split(/\s*(?:→|➡|⇒)\s*/).filter(Boolean),position=state.results.findIndex(x=>x.id===item.id),frequencyText=item.frequency>0?`${fmt(item.frequency)} / 百万词`:'未测得（短语或罕词可能缺失）';detail.innerHTML=`<div class="detail-top"><div><div class="detail-rank">词频排序 #${item.rank} · 原表 #${item.id}</div><h2 tabindex="-1" lang="en">${escape(item.word)}</h2><div class="frequency-line">Google Books 书面语频次 ${frequencyText}</div></div><button class="icon-btn mobile-close" type="button" aria-label="关闭详情">×</button></div><div class="definition-full">${escape(item.definition)}</div>${item.auditNote?`<div class="audit-note">校对提示：${escape(item.auditNote)}</div>`:''}<h3 class="section-label">发展源流</h3><ol class="origin-path" aria-label="词源发展顺序">${nodes.map(n=>`<li><span class="origin-node">${escape(n)}</span></li>`).join('')}</ol><h3 class="section-label">构词抓手</h3><div class="morph">${escape(item.morph)}</div><h3 class="section-label">记忆画面</h3><p class="story">${escape(item.story)}</p><span class="confidence ${item.confidence}">${label[item.confidence]}</span><span class="source-note">${escape(item.sourceLabel)}</span><div class="detail-nav"><button type="button" data-move="-1" ${position<=0?'disabled':''}>← 上一个</button><button type="button" data-move="1" ${position<0||position>=state.results.length-1?'disabled':''}>下一个 →</button></div>`;if(innerWidth<=900){detail.classList.add('mobile-open');detail.setAttribute('role','dialog');detail.setAttribute('aria-modal','true');detail.setAttribute('aria-label',`${item.word} 词条详情`);background.forEach(node=>node.setAttribute('inert',''));document.body.style.overflow='hidden';detail.querySelector('h2').focus()}else if(keepListFocus){queueMicrotask(()=>document.querySelector(`[data-id="${item.id}"]`)?.focus())}if(push)history.replaceState(null,'',`#${encodeURIComponent(item.word)}`)}
+    function closeDetails(restore=true){detail.classList.remove('mobile-open');detail.removeAttribute('role');detail.removeAttribute('aria-modal');detail.setAttribute('aria-label','词条详情');background.forEach(node=>node.removeAttribute('inert'));document.body.style.overflow='';history.replaceState(null,'',location.pathname+location.search);if(restore&&returnFocusId){renderList();queueMicrotask(()=>document.querySelector(`[data-id="${returnFocusId}"]`)?.focus())}}
+    function move(delta){const i=state.results.findIndex(x=>state.selected&&x.id===state.selected.id);if(i<0)return;const next=state.results[i+delta];if(!next)return;state.page=Math.floor((i+delta)/state.pageSize)+1;select(next);if(innerWidth>900)queueMicrotask(()=>document.querySelector(`[data-id="${next.id}"]`)?.focus())}
+    list.addEventListener('click',e=>{const row=e.target.closest('.word-row');if(row)select(byId.get(Number(row.dataset.id)))});detail.addEventListener('click',e=>{const mover=e.target.closest('[data-move]');if(mover)move(Number(mover.dataset.move));if(e.target.closest('.mobile-close'))closeDetails()});
+    search.addEventListener('input',()=>{state.query=search.value;state.page=1;clear.style.display=state.query?'block':'none';clearTimeout(searchTimer);searchTimer=setTimeout(apply,120)});search.addEventListener('keydown',e=>{if(e.key==='Enter'&&state.results[0])select(state.results[0])});clear.addEventListener('click',()=>{clearTimeout(searchTimer);search.value='';state.query='';state.page=1;apply();search.focus()});$('#sort').addEventListener('change',e=>{state.sort=e.target.value;state.page=1;apply()});document.querySelectorAll('.filter-btn').forEach(btn=>btn.addEventListener('click',()=>{const f=btn.dataset.filter;state.filters.has(f)?state.filters.delete(f):state.filters.add(f);btn.setAttribute('aria-pressed',state.filters.has(f));state.page=1;apply()}));
+    const scrollToList=()=>list.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});$('#prev-page').addEventListener('click',()=>{state.page--;renderList();scrollToList()});$('#next-page').addEventListener('click',()=>{state.page++;renderList();scrollToList()});
+    detail.addEventListener('keydown',e=>{if(e.key==='Escape'&&detail.classList.contains('mobile-open')){e.preventDefault();closeDetails()}if(e.key==='Tab'&&detail.classList.contains('mobile-open')){const focusable=[...detail.querySelectorAll('button:not(:disabled),[tabindex="-1"]')],first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+    document.addEventListener('keydown',e=>{if((e.key==='/'||(e.key.toLowerCase()==='k'&&(e.ctrlKey||e.metaKey)))&&!/input|select|textarea/i.test(document.activeElement.tagName)){e.preventDefault();search.focus()}});
+    apply();const hash=decodeURIComponent(location.hash.slice(1)).toLowerCase(),fromHash=byWord.get(hash),initial=fromHash||all[0],idx=state.results.indexOf(initial);state.page=Math.floor(idx/state.pageSize)+1;if(innerWidth>900||fromHash)select(initial,false);else{state.selected=null;renderList()}
+    addEventListener('hashchange',()=>{const item=byWord.get(decodeURIComponent(location.hash.slice(1)).toLowerCase());if(item){const i=state.results.findIndex(x=>x.id===item.id);if(i>=0){state.page=Math.floor(i/state.pageSize)+1;select(item,false)}}else if(detail.classList.contains('mobile-open'))closeDetails(false)});
+  })();
+  </script>
+</body>
+</html>
