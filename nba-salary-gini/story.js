@@ -636,14 +636,11 @@
   }
 
   function renderConclusion() {
-    const contracts = story.contracts;
-    const latestContract = contracts.at(-1);
-    if (latestContract) $("conclusionContract").textContent = `${latestContract.season}：状元约为顶薪的 ${pct1.format(latestContract.no1_to_maximum)}，底薪约为 ${pct1.format(latestContract.minimum_to_maximum)}`;
     const early = eraRows(2000, 2005), recent = eraRows(2019, 2025);
     if (early.length && recent.length) {
       const earlyPositive = average(early, row => row.top300.thresholds["0"].share);
       const recentPositive = average(recent, row => row.top300.thresholds["0"].share);
-      $("conclusionDepth").textContent = `前 300 分钟样本正 BPM 占比：${pct1.format(earlyPositive)} → ${pct1.format(recentPositive)}`;
+      $("conclusionDepth").textContent = `国际球员 21 → 135；前 300 人正 BPM 占比 ${pct1.format(earlyPositive)} → ${pct1.format(recentPositive)}`;
     }
   }
 

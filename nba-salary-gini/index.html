@@ -3,9 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="为什么 NBA 的薪资红利越来越重要：从工资集中度、状元与底薪合同成本、以及固定轮换样本的 BPM 分布解释现代 NBA 的阵容价值。" />
+  <meta name="description" content="为什么 NBA 的薪资红利越来越重要：从工资集中度、MVP 可用性、国际球员扩张与固定轮换样本的 BPM 分布解释现代 NBA 的阵容价值。" />
   <meta name="theme-color" content="#10253f" />
   <title>为什么 NBA 的薪资红利越来越重要｜交互式数据分析</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="为什么 NBA 的薪资红利越来越重要" />
+  <meta property="og:description" content="工资集中度、球星可用性与全球人才池的交互式数据分析。" />
+  <meta property="og:image" content="https://siriyu-2001.github.io/nba-salary-gini/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="为什么 NBA 的薪资红利越来越重要" />
+  <meta name="twitter:description" content="工资集中度、球星可用性与全球人才池的交互式数据分析。" />
+  <meta name="twitter:image" content="https://siriyu-2001.github.io/nba-salary-gini/og.png" />
   <link rel="stylesheet" href="./style.css" />
   <link rel="stylesheet" href="./story.css?v=20260903-3" />
 </head>
@@ -15,8 +23,9 @@
       <a class="story-brand" href="#top">NBA VALUE LAB</a>
       <div class="story-links">
         <a href="#gini">工资集中</a>
-        <a href="#contracts">受控合同</a>
-        <a href="#depth">轮换深度</a>
+        <a href="#availability">球星可用性</a>
+        <a href="#global">人才池</a>
+        <a href="#depth">BPM 分布</a>
         <a href="#conclusion">结论</a>
         <a href="#method">方法</a>
       </div>
@@ -30,7 +39,7 @@
         <span class="eyebrow">NBA Roster Economics · 1998–99 → 2025–26</span>
         <h1>为什么 NBA 的<br /><em>薪资红利</em>越来越重要</h1>
         <p class="hero-deck">
-          争冠不只是“找到最好的球员”，而是在工资帽约束下，用更低的合同价格购买足够多的正向场上影响力。这个页面把论证拆成三步：球星占用的预算更集中、受控合同仍然显著便宜、联盟轮换层的相对影响力更深。
+          争冠不只是“找到最好的球员”，而是在工资帽约束下，用更低的合同价格购买足够多的正向场上影响力。这个页面沿用初稿的三步论证：球星占用的预算更集中、核心球员的常规赛可用时间下降、全球化与轮换人才池让非球星分钟更有价值。
         </p>
         <div class="hero-actions">
           <a class="button primary" href="#gini">查看三组证据</a>
@@ -38,7 +47,8 @@
         </div>
         <div class="hero-meta">
           <span class="meta-pill">工资：球员赛季级</span>
-          <span class="meta-pill">合同：CBA 统一基准</span>
+          <span class="meta-pill">可用性：历年 MVP 常规赛</span>
+          <span class="meta-pill">全球化：NBA 开幕夜名单</span>
           <span class="meta-pill">实力代理：Basketball-Reference BPM</span>
           <span class="meta-pill">所有图表可交互</span>
         </div>
@@ -46,11 +56,11 @@
       <aside class="hero-thesis card" aria-label="核心论点">
         <span class="section-kicker">Core thesis</span>
         <p class="hero-equation">
-          <span>更昂贵的球星</span>
+          <span>更集中的球星工资</span>
+          <b>+</b>
+          <span>更少的核心常规赛分钟</span>
           <b>+</b>
           <span>更深的轮换人才池</span>
-          <b>+</b>
-          <span>工资帽与土豪线约束</span>
           <strong>= 薪资红利决定阵容上限</strong>
         </p>
         <p class="hero-thesis-note">
@@ -79,17 +89,17 @@
         <strong>工资分布更集中</strong>
         <p>基尼系数与前 10% 工资份额衡量高薪端占用了多少预算。</p>
       </a>
-      <a class="argument-step card" href="#contracts">
+      <a class="argument-step card" href="#availability">
         <span class="step-index">02</span>
-        <span class="step-label">受控合同成本</span>
-        <strong>状元与底薪仍远低于顶薪</strong>
-        <p>统一比较状元标准首年工资、零年资底薪与 10+ 年资顶薪。</p>
+        <span class="step-label">球星贡献时间</span>
+        <strong>MVP 的赛季总分钟下降</strong>
+        <p>同时看出场场次与总分钟，并单独标记缩水赛季，避免把赛程长度误当轮休。</p>
       </a>
       <a class="argument-step card" href="#depth">
         <span class="step-index">03</span>
         <span class="step-label">非球星供给</span>
-        <strong>固定轮换样本的中段右移</strong>
-        <p>用 BPM 分位数、正值占比与逐季直方图，而不是只看极端球星。</p>
+        <strong>全球人才池扩大，轮换中段右移</strong>
+        <p>先看国际球员扩张，再用 BPM 分位数、正值占比与逐季直方图检验相对分布。</p>
       </a>
     </section>
 
@@ -284,7 +294,7 @@
     <section id="contracts" class="story-section section-contracts">
       <div class="section-heading">
         <div>
-          <span class="section-number">02</span>
+          <span class="section-number">01B</span>
           <span class="section-kicker">Controlled-contract leverage</span>
           <h2>红利并非无限扩大，但受控合同仍是巨大的成本杠杆</h2>
         </div>
@@ -337,6 +347,51 @@
       </section>
     </section>
 
+    <section id="availability" class="story-section section-availability">
+      <div class="section-heading">
+        <div>
+          <span class="section-number">02</span>
+          <span class="section-kicker">Superstar availability</span>
+          <h2>球星不只更贵：常规赛总分钟也从高位回落</h2>
+        </div>
+        <p>
+          这里以每季最终 MVP 作为“顶级球星”的透明代理，同时展示出场场次与总分钟。MVP 不是全部球星，伤病也不等于主动轮休；这组数据只说明球队不能再默认核心会稳定承担三千分钟以上。
+        </p>
+      </div>
+
+      <section class="story-kpis availability-kpis" aria-label="MVP 可用性关键指标">
+        <article class="story-kpi card"><span>早期 MVP 平均总分钟</span><strong id="mvpEarlyMinutes">—</strong><small>1999–00 至 2009–10，82 场赛季</small></article>
+        <article class="story-kpi card"><span>近十季 MVP 平均总分钟</span><strong id="mvpRecentMinutes">—</strong><small>2016–17 至 2025–26，82 场赛季</small></article>
+        <article class="story-kpi card"><span>早期 MVP 平均出场</span><strong id="mvpEarlyGames">—</strong><small>同口径完整赛季</small></article>
+        <article class="story-kpi card"><span>近十季 MVP 平均出场</span><strong id="mvpRecentGames">—</strong><small>同口径完整赛季</small></article>
+      </section>
+
+      <section class="chart-card card">
+        <div class="card-head">
+          <div>
+            <h3>历年 MVP：出场场次与常规赛总分钟</h3>
+            <p>上图看场次，下图看总分钟；橙色竖带为停摆、疫情等缩水赛季。</p>
+          </div>
+          <div class="legend" aria-label="MVP 可用性图例">
+            <span class="legend-item"><span class="legend-line availability-line"></span>年度值</span>
+            <span class="legend-item"><span class="legend-line smooth"></span>5 年均值</span>
+            <span class="legend-item"><span class="legend-block shortened"></span>缩水赛季</span>
+          </div>
+        </div>
+        <div class="chart-wrap horizontal-chart">
+          <svg id="availabilityChart" viewBox="0 0 1120 600" role="img" aria-label="1998-99 至 2025-26 历年 NBA MVP 的常规赛出场场次与总分钟"></svg>
+          <div id="availabilityTooltip" class="tooltip"></div>
+        </div>
+        <div id="availabilityNarrative" class="chart-narrative">—</div>
+      </section>
+
+      <section class="policy-strip card">
+        <span class="section-kicker">Policy response</span>
+        <h3>2012 年马刺事件是标志性节点，2023–24 起联盟把出勤要求写进奖项资格</h3>
+        <p>2012 年马刺在客场对热火前让四名主力休战并被罚款，这不是历史上第一次休息球员，但成为负荷管理争议的代表事件。现行 CBA 通常要求球员至少参加 65 场常规赛，才有资格竞争 MVP、最佳阵容等荣誉。</p>
+      </section>
+    </section>
+
     <section id="depth" class="story-section section-depth">
       <div class="section-heading">
         <div>
@@ -348,6 +403,30 @@
           这里选择 BPM，首要原因是它从 1973–74 起具有一致的历史覆盖，能够完整覆盖本页从 1998–99 开始的研究窗口；其次，BPM 的 0 有明确的“联盟平均球员、每 100 回合贡献”含义。它并不是因为每季所有球员的简单算术平均数必然等于 0。
         </p>
       </div>
+
+      <section id="global" class="global-evidence">
+        <div class="subsection-heading">
+          <span class="section-kicker">Global talent pool</span>
+          <h3>国际球员从 21 人增至 135 人，轮换供给不再局限于美国本土</h3>
+          <p>NBA 公布的开幕夜名单快照显示，1990–91 赛季有 21 名国际球员，2025–26 赛季达到 135 名、来自 43 个国家和地区。旧年份对双向合同的统计口径不完全一致，因此这里强调长期量级变化，不把每个折点解释成因果。</p>
+        </div>
+        <section class="story-kpis global-kpis" aria-label="国际球员关键指标">
+          <article class="story-kpi card"><span>1990–91</span><strong id="internationalStart">21</strong><small>国际球员</small></article>
+          <article class="story-kpi card"><span>2025–26</span><strong id="internationalLatest">135</strong><small>国际球员</small></article>
+          <article class="story-kpi card"><span>覆盖国家与地区</span><strong id="internationalCountries">43</strong><small>2025–26 开幕夜</small></article>
+          <article class="story-kpi card"><span>国际出生 MVP 连续年数</span><strong>8</strong><small>2018–19 至 2025–26</small></article>
+        </section>
+        <section class="chart-card card">
+          <div class="card-head">
+            <div><h3>NBA 开幕夜国际球员人数：官方基准赛季</h3><p>连接线仅用于阅读长期趋势；没有官方快照的年份不做插值推断。</p></div>
+          </div>
+          <div class="chart-wrap horizontal-chart">
+            <svg id="internationalChart" viewBox="0 0 1120 430" role="img" aria-label="1990-91 至 2025-26 NBA 开幕夜国际球员人数"></svg>
+            <div id="internationalTooltip" class="tooltip"></div>
+          </div>
+          <div id="internationalNarrative" class="chart-narrative">—</div>
+        </section>
+      </section>
 
       <section class="bpm-rationale card" aria-label="为什么使用 BPM">
         <div class="bpm-rationale-head">
@@ -481,13 +560,13 @@
         <div>
           <span class="section-number">04</span>
           <span class="section-kicker">Synthesis</span>
-          <h2>薪资红利的重要性，来自三种约束同时存在</h2>
+          <h2>薪资红利的重要性，来自三种变化同时存在</h2>
         </div>
       </div>
       <div class="conclusion-grid">
         <article><span>预算集中</span><strong id="conclusionGini">球星工资占用更集中</strong><p>同样的工资帽需要覆盖更少的高薪核心和更多的剩余阵容。</p></article>
-        <article><span>合同杠杆</span><strong id="conclusionContract">受控合同仍显著低于顶薪</strong><p>红利没有无限扩大，但它仍是补足轮换的主要低成本渠道。</p></article>
-        <article><span>人才深度</span><strong id="conclusionDepth">正向轮换产出更分散</strong><p>中坚层不再只是“填名单”，便宜且可用的球员能直接改变季后赛阵容。</p></article>
+        <article><span>核心可用性</span><strong id="conclusionContract">MVP 赛季总分钟从高位回落</strong><p>伤病与轮休原因不同，但球队都需要更长的常规赛轮换来承接缺失分钟。</p></article>
+        <article><span>人才深度</span><strong id="conclusionDepth">国际供给扩大，轮换中段相对改善</strong><p>中坚层不再只是“填名单”，便宜且可用的球员能直接改变季后赛阵容。</p></article>
       </div>
       <blockquote>
         现代 NBA 的关键问题不是“要不要付球星顶薪”，而是：<strong>付完球星之后，还能否用低于市场价的合同装下足够多的正向影响力。</strong>
@@ -496,7 +575,7 @@
 
     <section id="method" class="method-card card story-method">
       <div class="card-head">
-        <div><span class="section-kicker">Methodology</span><h2>方法、来源与限制</h2><p>三组证据使用不同数据口径；页面刻意把制度指标、工资分布与表现代理分开。</p></div>
+        <div><span class="section-kicker">Methodology</span><h2>方法、来源与限制</h2><p>工资、MVP 可用性、国际名单与 BPM 使用不同数据口径；页面把描述性证据与因果解释分开。</p></div>
       </div>
 
       <details open>
@@ -505,6 +584,22 @@
           <p>状元工资采用当季第 1 顺位新秀工资表的 120% 首年金额。首轮秀可在工资表的 80%–120% 区间签约，120% 是常见基准。分母采用 CBA 规定的 10+ 年资最高工资额度，而不是当季某一份遗留合同的实际最高支付额。</p>
           <p>底薪采用零年资球员的完整赛季标准合同最低工资。它不等同于十日合同、双向合同、赛季中途按比例支付或老将底薪的球队实际工资帽占用。</p>
           <p>合同与工资帽表：<a href="https://basketball.realgm.com/nba/info/salary_cap" target="_blank" rel="noreferrer">RealGM Salary Cap / Minimum Scale</a>；新秀工资表：<a href="https://basketball.realgm.com/nba/info/rookie_scale" target="_blank" rel="noreferrer">RealGM Rookie Scale</a>。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>MVP 可用性与 65 场规则</summary>
+        <div>
+          <p>每个赛季取最终常规赛 MVP 的出场场次和总分钟。MVP 是“顶级球星”的一致、可复核代理，但不能代表所有全明星，也不能把伤病、主动轮休、球队战绩和垃圾时间减少拆开。</p>
+          <p>1998–99、2011–12、2019–20 与 2020–21 是赛程长度异常的缩水赛季，图中单独标记；早晚均值只比较 82 场赛季。2023 CBA 起，MVP、最佳阵容等荣誉通常要求至少参加 65 场常规赛，并有赛季报销与特殊情形例外。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>国际球员人数为何只画官方基准点</summary>
+        <div>
+          <p>数据采用 NBA 每年发布的开幕夜名单口径。1990–91、2000–01 与 2010–11 等旧值来自后续官方新闻稿的历史回溯；近年值直接来自当季公告。</p>
+          <p>双向合同自 2017 年后出现，不同年份新闻稿对其是否并入标题数字的处理并不完全一致。因而这组图用于说明人才池的长期扩张，不用于精确估计单年增速或把人数变化直接等同于球员绝对能力。</p>
         </div>
       </details>
 
@@ -554,8 +649,12 @@
         <a href="https://github.com/aaronfrederick/B-Tier-Basketball-Career-Modeling/blob/21147a56ac066faff5eb573be2cffb38094b4e11/nba_salaries_1990_to_2018.csv" target="_blank" rel="noreferrer"><strong>历史工资</strong><span>1998–99 至 2017–18</span></a>
         <a href="https://github.com/edwinjeon/NBA-Salary-Prediction/blob/main/data/NBA%20Player%20Salaries_2000-2025.csv" target="_blank" rel="noreferrer"><strong>近年工资</strong><span>2018–19 至 2024–25</span></a>
         <a href="https://github.com/cmuchina3/nba-stats-1947-present-curated/blob/main/data/raw/Advanced.csv" target="_blank" rel="noreferrer"><strong>BPM 数据</strong><span>Basketball-Reference 汇编</span></a>
+        <a href="https://www.nba.com/news/history-mvp-award-winners" target="_blank" rel="noreferrer"><strong>MVP 与出勤</strong><span>NBA 获奖名单 + B-Ref 赛季统计</span></a>
+        <a href="https://www.nba.com/news/2025-26-international-players-opening-night" target="_blank" rel="noreferrer"><strong>国际球员</strong><span>NBA 开幕夜官方公告</span></a>
         <a href="./data/story-data.json" target="_blank" rel="noreferrer"><strong>生成数据</strong><span>合同与表现指标 JSON</span></a>
+        <a href="./data/context-data.json" target="_blank" rel="noreferrer"><strong>补充数据</strong><span>MVP 可用性与国际球员 JSON</span></a>
         <a href="./build-story-data.py" target="_blank" rel="noreferrer"><strong>复算脚本</strong><span>Python 标准库，可审计</span></a>
+        <a href="./build-context-data.py" target="_blank" rel="noreferrer"><strong>补充复算脚本</strong><span>MVP 与国际快照</span></a>
       </div>
     </section>
   </main>
@@ -571,5 +670,6 @@
   <script src="./app-ui.js"></script>
   <script src="./enhancements.js?v=20260903-2"></script>
   <script src="./story.js?v=20260903-3"></script>
+  <script src="./context.js?v=20260903-1"></script>
 </body>
 </html>
