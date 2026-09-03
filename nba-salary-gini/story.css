@@ -391,3 +391,18 @@ body {
   overflow-x: auto;
   overflow-y: hidden;
 }
+
+
+/* BPM rationale and distribution diagnostics */
+.bpm-rationale { display: grid; grid-template-columns: minmax(240px, .72fr) minmax(0, 2.28fr); gap: 18px; padding: 18px; margin-bottom: 14px; align-items: start; }
+.bpm-rationale-head h3 { margin: 2px 0 0; font-size: 1.03rem; line-height: 1.4; }
+.bpm-rationale-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.bpm-rationale-grid article { padding: 13px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-alt); }
+.bpm-rationale-grid strong { display: block; margin-bottom: 5px; font-size: .84rem; color: var(--text); }
+.bpm-rationale-grid p { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.55; }
+.legend-line.skew-line { background: var(--story-purple); }
+.legend-line.zero-line { height: 2px; background: repeating-linear-gradient(90deg, var(--muted-2) 0 5px, transparent 5px 9px); }
+.skewness-card { margin-top: 18px; }
+.skewness-card .chart-narrative { margin-top: 2px; }
+@media (max-width: 980px) { .bpm-rationale { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .bpm-rationale-grid { grid-template-columns: 1fr; } }

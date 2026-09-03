@@ -145,7 +145,7 @@
     } catch (error) {
       console.error(error);
       setStoryStatus("合同或 BPM 数据载入失败；工资基尼部分仍可独立使用。", "error");
-      ["contractChart", "performanceTrendChart", "performanceHeatmap", "performanceHistogram"].forEach(id => {
+      ["contractChart", "performanceTrendChart", "performanceHeatmap", "performanceHistogram", "skewnessTrendChart"].forEach(id => {
         const svg = $(id);
         if (svg) svg.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="var(--muted)">数据载入失败</text>`;
       });
@@ -334,6 +334,7 @@
     renderPerformanceKpis();
     renderPerformanceTrend();
     renderPerformanceHeatmap();
+    renderSkewnessTrend();
     renderPerformanceHistogram();
     renderPerformanceNarrative();
   }
@@ -472,6 +473,23 @@
       }
     });
 
+    const medianPoints = rows.map((row, rowIndex) => {
+      const value = Math.max(minBpm, Math.min(maxBpm, sampleMetric(row).median));
+      return [margin.left + (value - minBpm) / (maxBpm - minBpm) * innerW, margin.top + rowIndex * rowH + rowH / 2];
+    });
+    if (medianPoints.length > 1) {
+      svg.appendChild(node("path", { d: path(medianPoints), fill: "none", stroke: css("--surface-solid"), "stroke-width": 5.2, opacity: .78, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+      svg.appendChild(node("path", { d: path(medianPoints), fill: "none", stroke: css("--story-gold"), "stroke-width": 2.4, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+      medianPoints.forEach((point, index) => {
+        const selected = rows[index].end_year === story.performanceYear;
+        const dot = node("circle", { cx: point[0], cy: point[1], r: selected ? 4.2 : 2.3, fill: css("--story-gold"), stroke: css("--surface-solid"), "stroke-width": selected ? 1.6 : .8 });
+        dot.appendChild(node("title", {}, `${rows[index].season} · BPM 中位数 ${signed(sampleMetric(rows[index]).median, 2)}`));
+        svg.appendChild(dot);
+      });
+      svg.appendChild(node("line", { x1: margin.left + 8, y1: 17, x2: margin.left + 38, y2: 17, stroke: css("--story-gold"), "stroke-width": 2.4 }));
+      svg.appendChild(node("text", { x: margin.left + 45, y: 21, fill: css("--muted"), "font-size": 10.5, "font-weight": 720 }, "每季 BPM 中位数"));
+    }
+
     const zeroX = margin.left + (0 - minBpm) / (maxBpm - minBpm) * innerW;
     svg.appendChild(node("line", { x1: zeroX, y1: margin.top - 7, x2: zeroX, y2: H - margin.bottom, stroke: css("--story-gold"), "stroke-width": 1.8, "stroke-dasharray": "4 4" }));
     svg.appendChild(node("text", { x: zeroX + 5, y: margin.top - 12, fill: css("--story-gold"), "font-size": 10.5, "font-weight": 760 }, "BPM = 0"));
@@ -480,6 +498,60 @@
       svg.appendChild(node("text", { x: xx, y: H - 22, "text-anchor": "middle", fill: css("--muted"), "font-size": 10.5 }, String(value)));
     }
     svg.appendChild(node("text", { x: margin.left + innerW / 2, y: H - 3, "text-anchor": "middle", fill: css("--muted"), "font-size": 11 }, "BPM 分箱（极端值截在 −8 与 +12）"));
+  }
+
+  function renderSkewnessTrend() {
+    const svg = $("skewnessTrendChart");
+    const tooltip = $("skewnessTooltip");
+    if (!svg) return;
+    svg.innerHTML = "";
+    const rows = performanceRows();
+    const values = rows.map(row => sampleMetric(row).skewness);
+    const smooth = centered(values, 5);
+    const W = 1120, H = 400, margin = { top: 34, right: 28, bottom: 66, left: 72 };
+    const innerW = W - margin.left - margin.right, innerH = H - margin.top - margin.bottom;
+    let min = Math.min(0, ...values, ...smooth.filter(Number.isFinite)) - .18;
+    let max = Math.max(0, ...values, ...smooth.filter(Number.isFinite)) + .18;
+    if (max - min < .8) { const mid = (max + min) / 2; min = mid - .4; max = mid + .4; }
+    const x = index => margin.left + index * innerW / Math.max(1, rows.length - 1);
+    const y = value => margin.top + (max - value) * innerH / Math.max(.0001, max - min);
+
+    svg.appendChild(node("rect", { x: 0, y: 0, width: W, height: H, fill: "transparent" }));
+    for (let i = 0; i <= 5; i++) {
+      const value = min + (max - min) * i / 5, yy = y(value);
+      svg.appendChild(node("line", { x1: margin.left, y1: yy, x2: W - margin.right, y2: yy, stroke: css("--grid") }));
+      svg.appendChild(node("text", { x: margin.left - 10, y: yy + 4, "text-anchor": "end", fill: css("--muted"), "font-size": 11 }, value.toFixed(1)));
+    }
+    if (min <= 0 && max >= 0) {
+      svg.appendChild(node("line", { x1: margin.left, y1: y(0), x2: W - margin.right, y2: y(0), stroke: css("--muted-2"), "stroke-width": 1.7, "stroke-dasharray": "5 5" }));
+      svg.appendChild(node("text", { x: W - margin.right, y: y(0) - 7, "text-anchor": "end", fill: css("--muted"), "font-size": 10.5 }, "偏度 = 0（对称）"));
+    }
+    const selectedIndex = rows.findIndex(row => row.end_year === story.performanceYear);
+    if (selectedIndex >= 0) svg.appendChild(node("line", { x1: x(selectedIndex), y1: margin.top, x2: x(selectedIndex), y2: H - margin.bottom, stroke: css("--story-gold"), "stroke-dasharray": "3 4", opacity: .65 }));
+    const smoothPoints = smooth.map((value, index) => Number.isFinite(value) ? [x(index), y(value)] : null).filter(Boolean);
+    if (smoothPoints.length > 1) svg.appendChild(node("path", { d: path(smoothPoints), fill: "none", stroke: css("--accent"), "stroke-width": 3.2, opacity: .76, "stroke-linecap": "round" }));
+    const points = values.map((value, index) => [x(index), y(value)]);
+    svg.appendChild(node("path", { d: path(points), fill: "none", stroke: css("--story-purple"), "stroke-width": 3, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+    rows.forEach((row, index) => {
+      const value = values[index], selected = row.end_year === story.performanceYear, metric = sampleMetric(row);
+      const circle = node("circle", { cx: x(index), cy: y(value), r: selected ? 6.2 : 4, fill: selected ? css("--surface-solid") : css("--story-purple"), stroke: css("--story-purple"), "stroke-width": selected ? 3 : 1.4, tabindex: 0 });
+      circle.style.cursor = "pointer";
+      const htmlText = `<strong>${row.season}</strong><div class="tooltip-row"><span>BPM 偏度</span><span>${signed(value, 2)}</span></div><div class="tooltip-row"><span>BPM 中位数</span><span>${signed(metric.median, 2)}</span></div><div class="tooltip-row"><span>BPM ≥ 0</span><span>${pct1.format(metric.thresholds["0"].share)}</span></div>`;
+      circle.addEventListener("mouseenter", event => showTooltip(tooltip, event, htmlText));
+      circle.addEventListener("mousemove", event => showTooltip(tooltip, event, htmlText));
+      circle.addEventListener("mouseleave", () => hideTooltip(tooltip));
+      circle.addEventListener("click", () => { story.performanceYear = row.end_year; $("performanceSeason").value = String(row.end_year); renderPerformance(); });
+      svg.appendChild(circle);
+    });
+    rows.forEach((row, index) => {
+      if (index % 3 !== 0 && index !== rows.length - 1) return;
+      const xx = x(index);
+      svg.appendChild(node("text", { x: xx, y: H - margin.bottom + 24, "text-anchor": "end", fill: css("--muted"), "font-size": 10.5, transform: `rotate(-42 ${xx} ${H - margin.bottom + 24})` }, row.season));
+    });
+    const early = eraRows(2000, 2005), recent = eraRows(2019, 2025);
+    const earlySkew = average(early, row => sampleMetric(row).skewness);
+    const recentSkew = average(recent, row => sampleMetric(row).skewness);
+    if ($("skewnessNarrative")) $("skewnessNarrative").innerHTML = `早期平均偏度为 <strong>${signed(earlySkew, 2)}</strong>，近年为 <strong>${signed(recentSkew, 2)}</strong>。偏度上升表示高 BPM 尾部变长；只有当中位数、P65 或正 BPM 占比同步上升时，才有证据支持轮换中部也在右移。`;
   }
 
   function renderPerformanceHistogram() {

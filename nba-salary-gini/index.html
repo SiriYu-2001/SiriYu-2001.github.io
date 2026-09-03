@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#10253f" />
   <title>为什么 NBA 的薪资红利越来越重要｜交互式数据分析</title>
   <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="./story.css?v=20260903-2" />
+  <link rel="stylesheet" href="./story.css?v=20260903-3" />
 </head>
 <body>
   <nav class="story-nav" aria-label="页面导航">
@@ -345,14 +345,35 @@
           <h2>非球星是否更强？看固定轮换样本，而不是只看右偏度</h2>
         </div>
         <p>
-          EPM 缺少稳定、可复现的长期公开数据，因此这里使用 Basketball-Reference 的 BPM 作为历史代理。每季固定取总上场时间最高的 300 人，近似 30 队各 10 人轮换；也可切换到 240 人口径。
+          这里选择 BPM，首要原因是它从 1973–74 起具有一致的历史覆盖，能够完整覆盖本页从 1998–99 开始的研究窗口；其次，BPM 的 0 有明确的“联盟平均球员、每 100 回合贡献”含义。它并不是因为每季所有球员的简单算术平均数必然等于 0。
         </p>
       </div>
+
+      <section class="bpm-rationale card" aria-label="为什么使用 BPM">
+        <div class="bpm-rationale-head">
+          <span class="section-kicker">Why BPM</span>
+          <h3>选择 BPM，主要是为了历史可比性；“0 = 联盟平均”是第二个优势</h3>
+        </div>
+        <div class="bpm-rationale-grid">
+          <article>
+            <strong>历史覆盖完整</strong>
+            <p>Basketball-Reference 的 BPM 可追溯至 1973–74；本页需要从 1998–99 开始，因此可以使用同一指标贯穿全部研究窗口。</p>
+          </article>
+          <article>
+            <strong>零点可解释</strong>
+            <p>BPM = 0 表示相对于联盟平均球员约为 0 分／100 回合。但按“球员人数”计算的简单平均或中位数并不被强制等于 0。</p>
+          </article>
+          <article>
+            <strong>公开且可复算</strong>
+            <p>BPM 只依赖长期可得的传统技术统计、位置和球队表现。EPM 更适合现代赛季，但公开历史从 2001–02 开始，不能覆盖 1998–99。</p>
+          </article>
+        </div>
+      </section>
 
       <div class="metric-warning card">
         <strong>偏度不能单独证明“更多球员变强”。</strong>
         <p>
-          当均值接近零时，右偏只表示少数高端球员拉出更长的正向尾部；多数球员仍可能低于零。主判断应看中位数、65 分位数和 BPM ≥ 0 的占比，偏度只作为分布形状的辅助诊断。
+          BPM 的联盟平均基准是 0，但这更接近上场时间／回合加权后的联盟中心。优秀球员通常获得更多分钟，因此按球员人数计，低于 0 的球员可能多于高于 0 的球员。右偏只表示高端尾部更长；主判断仍应看中位数、65 分位数和 BPM ≥ 0 的占比。
         </p>
       </div>
 
@@ -408,7 +429,7 @@
       <section class="distribution-grid">
         <article class="chart-card card">
           <div class="card-head">
-            <div><h3>逐赛季 BPM 分布热力图</h3><p>每一行都是一张使用相同分箱的直方图；颜色越深，该 BPM 区间的球员越多。</p></div>
+            <div><h3>逐赛季 BPM 分布热力图</h3><p>每一行都是相同分箱的直方图；金色折线连接每季固定轮换样本的 BPM 中位数。</p></div>
           </div>
           <div class="chart-wrap heatmap-wrap horizontal-chart">
             <svg id="performanceHeatmap" viewBox="0 0 760 760" role="img" aria-label="1998-99 至 2024-25 每赛季 BPM 直方图热力图"></svg>
@@ -424,6 +445,25 @@
           </div>
           <div id="histogramStats" class="histogram-stats"></div>
         </article>
+      </section>
+
+      <section class="chart-card card skewness-card">
+        <div class="card-head">
+          <div>
+            <h3>BPM 分布偏度：高端尾部是否越来越长</h3>
+            <p>单独绘制年度 skewness 与 5 年均值。正值表示高 BPM 一侧的尾巴更长，不等于多数轮换球员变强。</p>
+          </div>
+          <div class="legend" aria-label="BPM 偏度图图例">
+            <span class="legend-item"><span class="legend-line skew-line"></span>年度偏度</span>
+            <span class="legend-item"><span class="legend-line smooth"></span>5 年均值</span>
+            <span class="legend-item"><span class="legend-line zero-line"></span>对称分布（0）</span>
+          </div>
+        </div>
+        <div class="chart-wrap horizontal-chart">
+          <svg id="skewnessTrendChart" viewBox="0 0 1120 400" role="img" aria-label="NBA 固定轮换样本 BPM 偏度年度折线图"></svg>
+          <div id="skewnessTooltip" class="tooltip"></div>
+        </div>
+        <div id="skewnessNarrative" class="chart-narrative">—</div>
       </section>
 
       <section class="card depth-interpretation">
@@ -471,7 +511,9 @@
       <details>
         <summary>BPM、EPM 与“非球星变强”的边界</summary>
         <div>
-          <p>EPM 是较合适的现代影响力指标，但缺少一条从 1998–99 起、公开可复现且口径稳定的完整下载序列。本页改用 Basketball-Reference BPM，以换取 27 个赛季的一致历史覆盖。</p>
+          <p>选择 BPM 的首要原因是历史覆盖：Basketball-Reference 提供自 1973–74 起的 BPM，完整覆盖本页从 1998–99 开始的 27 个已完成赛季。BPM 还把 0 定义为相对联盟平均球员的每 100 回合贡献，因此跨赛季读数具有直观基准。<a href="https://www.basketball-reference.com/about/bpm2.html" target="_blank" rel="noreferrer">查看 BPM 2.0 方法说明</a>。</p>
+          <p>这里的“0”不意味着每季所有球员 BPM 的简单算术平均数必定为 0。BPM 的球队校准按上场回合／分钟加权；优秀球员通常获得更多分钟，所以按球员人数统计时，低于 0 的球员数量完全可能更多，中位数也可能低于 0。</p>
+          <p>EPM 是更丰富的现代影响力指标，使用比赛回合、技术统计和追踪数据，但其公开逐日历史从 2001–02 开始，无法覆盖 1998–99 至 2000–01。<a href="https://dunksandthrees.com/about/epm" target="_blank" rel="noreferrer">查看 EPM 方法与覆盖范围</a>。因此本页把 BPM 作为长期历史代理，而不是宣称 BPM 比 EPM 更准确。</p>
           <p>BPM 是相对于联盟环境的估计，不是跨时代绝对篮球技能测验。这里能检验的是“当季固定轮换样本的分布形状是否变化”，不能直接证明 2025 年角色球员在绝对能力上一定强于 2000 年角色球员。</p>
           <p>表现数据来自 Basketball-Reference 汇编的公开数据镜像；每季按总分钟排序后固定取 240 或 300 人。交易球员优先使用赛季合计行，否则按球队分钟对 BPM 加权。</p>
         </div>
@@ -480,8 +522,8 @@
       <details>
         <summary>为什么偏度不是主指标</summary>
         <div>
-          <p>正偏度表示高值一侧的尾巴更长，可能只是少数超级球星更突出。即使均值为零，也不能推出超过零的球员更多。判断中坚层应优先看固定样本的中位数、65 分位数以及 BPM ≥ 0 的占比。</p>
-          <p>本页仍保留偏度切换项，用于观察分布尾部是否拉长，并同时报告 P95−P65 差距，避免把“更长的明星尾部”误读成“角色球员整体右移”。</p>
+          <p>正偏度表示高值一侧的尾巴更长，可能只是少数超级球星更突出。即使指标以联盟平均 0 为基准，也不能推出超过 0 的球员更多，因为按球员人数计算的分布并不要求均值为 0。判断中坚层应优先看固定样本的中位数、65 分位数以及 BPM ≥ 0 的占比。</p>
+          <p>本页现在单列年度偏度折线，并在热力图上叠加每季 BPM 中位数。二者结合可以区分“整个中部向右移动”与“只有明星尾部拉长”。</p>
         </div>
       </details>
 
@@ -528,6 +570,6 @@
   <script src="./app-core.js"></script>
   <script src="./app-ui.js"></script>
   <script src="./enhancements.js?v=20260903-2"></script>
-  <script src="./story.js?v=20260903-2"></script>
+  <script src="./story.js?v=20260903-3"></script>
 </body>
 </html>
