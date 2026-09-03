@@ -3,333 +3,531 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="NBA 球员工资基尼系数交互式网页：1998–99 停摆过渡期以来的年度变化、固定人数稳健性检验、洛伦兹曲线和明细表。" />
-  <title>NBA 球员工资基尼系数｜交互式分析</title>
+  <meta name="description" content="为什么 NBA 的薪资红利越来越重要：从工资集中度、状元与底薪合同成本、以及固定轮换样本的 BPM 分布解释现代 NBA 的阵容价值。" />
+  <meta name="theme-color" content="#10253f" />
+  <title>为什么 NBA 的薪资红利越来越重要｜交互式数据分析</title>
   <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./story.css?v=20260903-2" />
 </head>
 <body>
-  <header class="hero">
-    <div class="shell">
-      <span class="eyebrow">NBA Salary Distribution</span>
-      <h1>NBA 球员工资基尼系数</h1>
-      <p>
-        从 1998–99 停摆过渡期开始，按赛季计算球员工资分配的基尼系数，并通过固定人数样本、洛伦兹曲线和年度明细检查趋势是否稳健。
-      </p>
-      <div class="hero-meta">
-        <span class="meta-pill">主序列：1998–99 至 2024–25</span>
-        <span class="meta-pill">可选：2025–26 补充点</span>
-        <span class="meta-pill">浏览器端实时计算</span>
-        <span class="meta-pill">无需上传到服务器</span>
+  <nav class="story-nav" aria-label="页面导航">
+    <div class="shell story-nav-inner">
+      <a class="story-brand" href="#top">NBA VALUE LAB</a>
+      <div class="story-links">
+        <a href="#gini">工资集中</a>
+        <a href="#contracts">受控合同</a>
+        <a href="#depth">轮换深度</a>
+        <a href="#conclusion">结论</a>
+        <a href="#method">方法</a>
       </div>
+      <button id="themeButton" class="button icon nav-theme" type="button" title="切换深色模式" aria-label="切换深色模式">◐</button>
+    </div>
+  </nav>
+
+  <header id="top" class="hero story-hero">
+    <div class="shell hero-layout">
+      <div class="hero-copy">
+        <span class="eyebrow">NBA Roster Economics · 1998–99 → 2025–26</span>
+        <h1>为什么 NBA 的<br /><em>薪资红利</em>越来越重要</h1>
+        <p class="hero-deck">
+          争冠不只是“找到最好的球员”，而是在工资帽约束下，用更低的合同价格购买足够多的正向场上影响力。这个页面把论证拆成三步：球星占用的预算更集中、受控合同仍然显著便宜、联盟轮换层的相对影响力更深。
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#gini">查看三组证据</a>
+          <a class="button" href="#method">先看口径限制</a>
+        </div>
+        <div class="hero-meta">
+          <span class="meta-pill">工资：球员赛季级</span>
+          <span class="meta-pill">合同：CBA 统一基准</span>
+          <span class="meta-pill">实力代理：Basketball-Reference BPM</span>
+          <span class="meta-pill">所有图表可交互</span>
+        </div>
+      </div>
+      <aside class="hero-thesis card" aria-label="核心论点">
+        <span class="section-kicker">Core thesis</span>
+        <p class="hero-equation">
+          <span>更昂贵的球星</span>
+          <b>+</b>
+          <span>更深的轮换人才池</span>
+          <b>+</b>
+          <span>工资帽与土豪线约束</span>
+          <strong>= 薪资红利决定阵容上限</strong>
+        </p>
+        <p class="hero-thesis-note">
+          “红利”指球员提供的竞技价值高于合同占用的工资帽资源。它可以来自新秀工资表、底薪、低价续约，也可以来自球员在合同期内突然成长。
+        </p>
+      </aside>
     </div>
   </header>
 
-  <main class="shell">
+  <main class="shell story-main">
     <div id="status" class="status" data-state="loading" role="status" aria-live="polite">
       <span class="status-dot" aria-hidden="true"></span>
       <span id="statusText">正在读取工资数据并计算年度基尼系数……</span>
-      <label id="uploadLabel" class="file-button hidden" for="fileInput">选择本地 CSV</label>
+      <label id="uploadLabel" class="file-button hidden" for="fileInput">选择本地工资 CSV</label>
       <input id="fileInput" class="hidden" type="file" accept=".csv,text/csv" multiple />
     </div>
+    <div id="storyStatus" class="status compact-status" data-state="loading" role="status" aria-live="polite">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span>正在载入合同与 BPM 分布数据……</span>
+    </div>
 
-    <section class="toolbar card" aria-label="分析控制项">
-      <div class="field">
-        <label for="sampleMode">样本口径</label>
-        <select id="sampleMode">
-          <option value="all">全部列示球员</option>
-          <option value="top450">每季最高薪 450 人</option>
-          <option value="top360">每季最高薪 360 人</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="smoothWindow">平滑</label>
-        <select id="smoothWindow">
-          <option value="0">不平滑</option>
-          <option value="3" selected>3 年居中均值</option>
-          <option value="5">5 年居中均值</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="startSeason">起始赛季</label>
-        <select id="startSeason"></select>
-      </div>
-      <div class="field">
-        <label for="endSeason">结束赛季</label>
-        <select id="endSeason"></select>
-      </div>
-      <div class="field wide">
-        <span class="field-title">显示项</span>
-        <div class="check-row">
-          <label><input id="showMilestones" type="checkbox" checked /> 关键制度与媒体节点</label>
-          <label><input id="include2026" type="checkbox" /> 2025–26 补充点</label>
-        </div>
-      </div>
-      <div class="field wide" style="grid-column: span 2;">
-        <span class="field-title">导出</span>
-        <div class="actions">
-          <button id="downloadCsv" class="button primary" type="button">下载年度 CSV</button>
-          <button id="downloadSvg" class="button" type="button">下载趋势图 SVG</button>
-          <button id="refreshData" class="button" type="button">重新读取</button>
-          <button id="themeButton" class="button icon" type="button" title="切换深色模式" aria-label="切换深色模式">◐</button>
-        </div>
-      </div>
+    <section class="argument-map" aria-label="三步论证">
+      <a class="argument-step card" href="#gini">
+        <span class="step-index">01</span>
+        <span class="step-label">球星工资负担</span>
+        <strong>工资分布更集中</strong>
+        <p>基尼系数与前 10% 工资份额衡量高薪端占用了多少预算。</p>
+      </a>
+      <a class="argument-step card" href="#contracts">
+        <span class="step-index">02</span>
+        <span class="step-label">受控合同成本</span>
+        <strong>状元与底薪仍远低于顶薪</strong>
+        <p>统一比较状元标准首年工资、零年资底薪与 10+ 年资顶薪。</p>
+      </a>
+      <a class="argument-step card" href="#depth">
+        <span class="step-index">03</span>
+        <span class="step-label">非球星供给</span>
+        <strong>固定轮换样本的中段右移</strong>
+        <p>用 BPM 分位数、正值占比与逐季直方图，而不是只看极端球星。</p>
+      </a>
     </section>
 
-    <section class="kpis" aria-label="关键指标">
-      <article class="kpi card">
-        <div class="kpi-label">1999 CBA 后首个完整赛季</div>
-        <div id="kpiStart" class="kpi-value">—</div>
-        <div id="kpiStartNote" class="kpi-note">1999–00</div>
-      </article>
-      <article class="kpi card">
-        <div class="kpi-label">当前区间最新值</div>
-        <div id="kpiLatest" class="kpi-value">—</div>
-        <div id="kpiLatestNote" class="kpi-note">—</div>
-      </article>
-      <article class="kpi card">
-        <div class="kpi-label">当前区间峰值</div>
-        <div id="kpiPeak" class="kpi-value">—</div>
-        <div id="kpiPeakNote" class="kpi-note">—</div>
-      </article>
-      <article class="kpi card">
-        <div class="kpi-label">首个完整赛季至最新</div>
-        <div id="kpiChange" class="kpi-value">—</div>
-        <div id="kpiChangeNote" class="kpi-note">基尼系数变化</div>
-      </article>
-    </section>
+    <section id="gini" class="story-section section-gini">
+      <div class="section-heading">
+        <div>
+          <span class="section-number">01</span>
+          <span class="section-kicker">Superstar burden</span>
+          <h2>球星越来越贵：工资份额向高薪端集中</h2>
+        </div>
+        <p>
+          基尼系数回答的是“同一赛季的工资分配有多不均衡”。它不是球星是否值得顶薪的评价，而是说明签下一名顶级球员后，留给其余阵容的预算结构发生了什么。
+        </p>
+      </div>
 
-    <section class="interpretation-card card" aria-labelledby="interpretationTitle">
-      <div class="card-head interpretation-head">
-        <div>
-          <span class="section-kicker">Interpretation</span>
-          <h2 id="interpretationTitle">基尼系数上升意味着什么？</h2>
-          <p id="interpretationLead">数据载入后，这里会根据当前时间区间与样本口径给出动态解读。</p>
+      <section class="toolbar card" aria-label="工资集中度控制项">
+        <div class="field">
+          <label for="sampleMode">工资样本口径</label>
+          <select id="sampleMode">
+            <option value="all">全部列示球员</option>
+            <option value="top450">每季最高薪 450 人</option>
+            <option value="top360">每季最高薪 360 人</option>
+          </select>
         </div>
-        <span id="interpretationBadge" class="trend-badge neutral">等待数据</span>
-      </div>
-      <div class="interpretation-grid">
-        <article class="interpretation-item">
-          <span class="interpretation-number">01</span>
-          <h3>核心含义</h3>
-          <p id="interpretationMeaning">基尼越高，工资越集中于少数高薪球员。</p>
-        </article>
-        <article class="interpretation-item">
-          <span class="interpretation-number">02</span>
-          <h3>顶端集中度</h3>
-          <p id="interpretationConcentration">同时观察前 10% 球员的工资份额，避免只依赖单一指标。</p>
-        </article>
-        <article class="interpretation-item">
-          <span class="interpretation-number">03</span>
-          <h3>是否只是名单尾部效应</h3>
-          <p id="interpretationRobustness">对照固定 450 人口径，可判断双向合同、短期合同和数据覆盖扩张的影响。</p>
-        </article>
-      </div>
-      <div id="interpretationCaveat" class="interpretation-caveat">
-        基尼上升描述相对分配结构，不等于低薪球员的名义工资下降。
-      </div>
-    </section>
+        <div class="field">
+          <label for="smoothWindow">趋势平滑</label>
+          <select id="smoothWindow">
+            <option value="0">不平滑</option>
+            <option value="3" selected>3 年居中均值</option>
+            <option value="5">5 年居中均值</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="startSeason">起始赛季</label>
+          <select id="startSeason"></select>
+        </div>
+        <div class="field">
+          <label for="endSeason">结束赛季</label>
+          <select id="endSeason"></select>
+        </div>
+        <div class="field wide">
+          <span class="field-title">显示项</span>
+          <div class="check-row">
+            <label><input id="showMilestones" type="checkbox" checked /> 制度与媒体节点</label>
+            <label><input id="include2026" type="checkbox" /> 2025–26 补充工资点</label>
+          </div>
+        </div>
+        <div class="field wide toolbar-actions">
+          <span class="field-title">导出与更新</span>
+          <div class="actions">
+            <button id="downloadCsv" class="button primary" type="button">年度 CSV</button>
+            <button id="downloadSvg" class="button" type="button">趋势图 SVG</button>
+            <button id="refreshData" class="button" type="button">重新读取</button>
+          </div>
+        </div>
+      </section>
 
-    <section class="chart-card card">
-      <div class="card-head">
-        <div>
-          <h2>年度变化</h2>
-          <p id="chartSubtitle">点击任意数据点查看该赛季的工资分布。</p>
+      <section class="kpis" aria-label="工资集中度关键指标">
+        <article class="kpi card">
+          <div class="kpi-label">1999 CBA 后首个完整赛季</div>
+          <div id="kpiStart" class="kpi-value">—</div>
+          <div id="kpiStartNote" class="kpi-note">1999–00</div>
+        </article>
+        <article class="kpi card">
+          <div class="kpi-label">当前区间最新值</div>
+          <div id="kpiLatest" class="kpi-value">—</div>
+          <div id="kpiLatestNote" class="kpi-note">—</div>
+        </article>
+        <article class="kpi card">
+          <div class="kpi-label">当前区间峰值</div>
+          <div id="kpiPeak" class="kpi-value">—</div>
+          <div id="kpiPeakNote" class="kpi-note">—</div>
+        </article>
+        <article class="kpi card">
+          <div class="kpi-label">首个完整赛季至最新</div>
+          <div id="kpiChange" class="kpi-value">—</div>
+          <div id="kpiChangeNote" class="kpi-note">基尼系数变化</div>
+        </article>
+      </section>
+
+      <section class="interpretation-card card" aria-labelledby="interpretationTitle">
+        <div class="card-head interpretation-head">
+          <div>
+            <span class="section-kicker">Interpretation</span>
+            <h3 id="interpretationTitle">基尼系数上升意味着什么？</h3>
+            <p id="interpretationLead">数据载入后，这里会根据当前区间和样本口径给出动态解读。</p>
+          </div>
+          <span id="interpretationBadge" class="trend-badge neutral">等待数据</span>
         </div>
-        <div class="legend" aria-label="图例">
-          <span class="legend-item"><span class="legend-line"></span>年度 Gini</span>
-          <span id="smoothLegend" class="legend-item"><span class="legend-line smooth"></span>3 年均值</span>
-          <span class="legend-item"><span class="legend-line event lockout"></span>停摆</span>
-          <span class="legend-item"><span class="legend-line event rules"></span>薪资规则</span>
-          <span class="legend-item"><span class="legend-line event media"></span>转播合同</span>
-          <span class="legend-item"><span class="legend-line event source"></span>数据源</span>
+        <div class="interpretation-grid">
+          <article class="interpretation-item">
+            <span class="interpretation-number">01</span>
+            <h3>核心含义</h3>
+            <p id="interpretationMeaning">基尼越高，工资越集中于少数高薪球员。</p>
+          </article>
+          <article class="interpretation-item">
+            <span class="interpretation-number">02</span>
+            <h3>顶端集中度</h3>
+            <p id="interpretationConcentration">同时观察前 10% 球员工资份额，避免只依赖单一指标。</p>
+          </article>
+          <article class="interpretation-item">
+            <span class="interpretation-number">03</span>
+            <h3>是否只是名单尾部效应</h3>
+            <p id="interpretationRobustness">对照固定 450 人口径，检查双向与短期合同记录的影响。</p>
+          </article>
         </div>
-      </div>
-      <div class="chart-wrap">
-        <svg id="trendChart" viewBox="0 0 1120 550" role="img" aria-label="NBA 球员工资年度基尼系数折线图及关键制度节点"></svg>
-        <div id="trendTooltip" class="tooltip"></div>
-      </div>
-      <div class="mobile-scroll-hint" aria-hidden="true">移动端可横向滑动查看完整时间轴与节点</div>
-      <div class="milestone-section-head">
-        <div>
+        <div id="interpretationCaveat" class="interpretation-caveat">
+          基尼上升描述相对分配结构，不等于低薪球员的名义工资下降。
+        </div>
+      </section>
+
+      <section class="chart-card card">
+        <div class="card-head">
+          <div>
+            <h3>年度工资基尼系数</h3>
+            <p id="chartSubtitle">点击任意数据点查看该赛季的工资分布。</p>
+          </div>
+          <div class="legend" aria-label="工资图图例">
+            <span class="legend-item"><span class="legend-line"></span>年度 Gini</span>
+            <span id="smoothLegend" class="legend-item"><span class="legend-line smooth"></span>3 年均值</span>
+            <span class="legend-item"><span class="legend-line event lockout"></span>停摆</span>
+            <span class="legend-item"><span class="legend-line event rules"></span>薪资规则</span>
+            <span class="legend-item"><span class="legend-line event media"></span>转播合同</span>
+            <span class="legend-item"><span class="legend-line event source"></span>数据源</span>
+          </div>
+        </div>
+        <div class="chart-wrap horizontal-chart">
+          <svg id="trendChart" viewBox="0 0 1120 550" role="img" aria-label="NBA 球员工资年度基尼系数及关键制度节点"></svg>
+          <div id="trendTooltip" class="tooltip"></div>
+        </div>
+        <div class="mobile-scroll-hint" aria-hidden="true">移动端可横向滑动查看完整时间轴</div>
+        <div class="milestone-section-head">
           <h3>关键节点说明</h3>
-          <p>颜色区分停摆、工资规则、全国转播合同和数据源变化；点击有数据的节点可跳到对应赛季。</p>
+          <p>点击有工资数据的节点可跳到对应赛季；节点是制度背景，不是自动的因果断点。</p>
         </div>
-      </div>
-      <div id="milestonePanel" class="milestone-panel" aria-live="polite"></div>
+        <div id="milestonePanel" class="milestone-panel" aria-live="polite"></div>
+      </section>
+
+      <section class="details-grid">
+        <article class="detail-card card">
+          <div class="card-head">
+            <div>
+              <h3 id="selectedSeasonTitle">赛季工资分布</h3>
+              <p>洛伦兹曲线越远离 45° 平等线，工资分布越不均衡。</p>
+            </div>
+          </div>
+          <div class="season-summary">
+            <div class="mini-stat"><span>Gini</span><strong id="detailGini">—</strong></div>
+            <div class="mini-stat"><span>样本数</span><strong id="detailN">—</strong></div>
+            <div class="mini-stat"><span>工资中位数</span><strong id="detailMedian">—</strong></div>
+            <div class="mini-stat"><span>前 10% 占比</span><strong id="detailTop10">—</strong></div>
+          </div>
+          <div class="lorenz-wrap">
+            <svg id="lorenzChart" viewBox="0 0 720 360" role="img" aria-label="所选赛季工资洛伦兹曲线"></svg>
+          </div>
+        </article>
+
+        <aside class="detail-card card">
+          <div class="card-head">
+            <div>
+              <h3>所选赛季高薪球员</h3>
+              <p id="selectedSource">—</p>
+            </div>
+          </div>
+          <ol id="topEarners" class="top-list"></ol>
+          <div class="spacer-small"></div>
+          <div id="coverageNote" class="quality-note">—</div>
+        </aside>
+      </section>
+
+      <details class="data-details card">
+        <summary>展开年度工资明细</summary>
+        <section class="table-card embedded-table">
+          <div class="card-head">
+            <div>
+              <h3>年度明细</h3>
+              <p>同比变化单位为基尼系数点；0.010 相当于 1 个百分点。</p>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>赛季</th><th>来源</th><th>样本数</th><th>Gini</th><th>同比</th><th>平均工资</th><th>中位数</th><th>最高工资</th><th>前 10% 占比</th></tr>
+              </thead>
+              <tbody id="annualTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </details>
     </section>
 
-    <section class="details-grid">
-      <article class="detail-card card">
+    <section id="contracts" class="story-section section-contracts">
+      <div class="section-heading">
+        <div>
+          <span class="section-number">02</span>
+          <span class="section-kicker">Controlled-contract leverage</span>
+          <h2>红利并非无限扩大，但受控合同仍是巨大的成本杠杆</h2>
+        </div>
+        <p>
+          为避免旧合同、超龄顶薪与通胀处理混在一起，这里统一用 CBA 规定的“10+ 年资顶薪额度”作分母，并比较状元标准首年工资（新秀工资表的 120%）和零年资正式底薪。
+        </p>
+      </div>
+
+      <section class="contract-kpis story-kpis" aria-label="受控合同关键指标">
+        <article class="story-kpi card"><span>最新状元 / 顶薪</span><strong id="contractRookieRatio">—</strong><small id="contractRookieNote">—</small></article>
+        <article class="story-kpi card"><span>顶薪是状元工资的</span><strong id="contractRookieMultiple">—</strong><small>倍数越高，理论红利越大</small></article>
+        <article class="story-kpi card"><span>最新底薪 / 顶薪</span><strong id="contractMinimumRatio">—</strong><small id="contractMinimumNote">—</small></article>
+        <article class="story-kpi card"><span>顶薪是零年资底薪的</span><strong id="contractMinimumMultiple">—</strong><small>同一顶薪额度可对应多少份底薪</small></article>
+      </section>
+
+      <section class="chart-card card">
         <div class="card-head">
           <div>
-            <h2 id="selectedSeasonTitle">赛季分布</h2>
-            <p>洛伦兹曲线越远离 45° 平等线，工资分布越不均衡。</p>
+            <h3>受控合同占 10+ 年资顶薪的比例</h3>
+            <p>上下两幅图使用不同纵轴，以免底薪序列被压在零轴附近。</p>
+          </div>
+          <div class="story-control-row">
+            <label for="contractSeason">查看赛季</label>
+            <select id="contractSeason"></select>
           </div>
         </div>
-        <div class="season-summary">
-          <div class="mini-stat"><span>Gini</span><strong id="detailGini">—</strong></div>
-          <div class="mini-stat"><span>样本数</span><strong id="detailN">—</strong></div>
-          <div class="mini-stat"><span>工资中位数</span><strong id="detailMedian">—</strong></div>
-          <div class="mini-stat"><span>前 10% 占比</span><strong id="detailTop10">—</strong></div>
+        <div class="chart-wrap contract-chart-wrap horizontal-chart">
+          <svg id="contractChart" viewBox="0 0 1120 520" role="img" aria-label="状元标准首年工资和零年资底薪占顶薪额度的比例"></svg>
+          <div id="contractTooltip" class="tooltip"></div>
         </div>
-        <div class="lorenz-wrap">
-          <svg id="lorenzChart" viewBox="0 0 720 360" role="img" aria-label="所选赛季工资洛伦兹曲线"></svg>
-        </div>
-      </article>
+        <div class="mobile-scroll-hint" aria-hidden="true">移动端可横向滑动查看全部赛季</div>
+        <div id="contractNarrative" class="chart-narrative">—</div>
+      </section>
 
-      <aside class="detail-card card">
+      <section class="contract-detail-grid">
+        <article class="card contract-ladder-card">
+          <div class="card-head">
+            <div><h3 id="contractDetailTitle">合同成本阶梯</h3><p>以当季 10+ 年资顶薪额度为 100%。</p></div>
+          </div>
+          <div id="contractLadder" class="contract-ladder"></div>
+        </article>
+        <article class="card implication-card">
+          <span class="section-kicker">What the chart says</span>
+          <h3>重要的是“红利的必要性”，不一定是“红利越来越便宜”</h3>
+          <p id="contractInterpretation">—</p>
+          <p>
+            状元合同相对顶薪的比例会随工资表与顶薪规则变化，底薪比例则长期较稳定。即使折扣没有单调扩大，只要高薪球星占用更多预算、补强工具受到土豪线限制，找到能超额产出的廉价合同就会更重要。
+          </p>
+        </article>
+      </section>
+    </section>
+
+    <section id="depth" class="story-section section-depth">
+      <div class="section-heading">
+        <div>
+          <span class="section-number">03</span>
+          <span class="section-kicker">Rotation depth</span>
+          <h2>非球星是否更强？看固定轮换样本，而不是只看右偏度</h2>
+        </div>
+        <p>
+          EPM 缺少稳定、可复现的长期公开数据，因此这里使用 Basketball-Reference 的 BPM 作为历史代理。每季固定取总上场时间最高的 300 人，近似 30 队各 10 人轮换；也可切换到 240 人口径。
+        </p>
+      </div>
+
+      <div class="metric-warning card">
+        <strong>偏度不能单独证明“更多球员变强”。</strong>
+        <p>
+          当均值接近零时，右偏只表示少数高端球员拉出更长的正向尾部；多数球员仍可能低于零。主判断应看中位数、65 分位数和 BPM ≥ 0 的占比，偏度只作为分布形状的辅助诊断。
+        </p>
+      </div>
+
+      <section class="performance-toolbar card" aria-label="BPM 分布控制项">
+        <div class="field">
+          <label for="performanceSample">固定样本</label>
+          <select id="performanceSample">
+            <option value="top300" selected>每季上场时间前 300 人</option>
+            <option value="top240">每季上场时间前 240 人</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="performanceMetric">趋势指标</label>
+          <select id="performanceMetric">
+            <option value="share0" selected>BPM ≥ 0 的球员占比</option>
+            <option value="median">BPM 中位数</option>
+            <option value="p65">BPM 65 分位数</option>
+            <option value="gap">明星—中坚差距（P95−P65）</option>
+            <option value="skewness">BPM 偏度</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="performanceSeason">直方图赛季</label>
+          <select id="performanceSeason"></select>
+        </div>
+        <div class="field">
+          <label for="performanceCompare">对照赛季</label>
+          <select id="performanceCompare"></select>
+        </div>
+      </section>
+
+      <section class="performance-kpis story-kpis" aria-label="BPM 关键指标">
+        <article class="story-kpi card"><span>早期 BPM ≥ 0 占比</span><strong id="perfEarlyPositive">—</strong><small>1999–00 至 2004–05 平均</small></article>
+        <article class="story-kpi card"><span>近年 BPM ≥ 0 占比</span><strong id="perfRecentPositive">—</strong><small>2018–19 至 2024–25 平均</small></article>
+        <article class="story-kpi card"><span>中位 BPM 变化</span><strong id="perfMedianChange">—</strong><small>近年均值减早期均值</small></article>
+        <article class="story-kpi card"><span>明星—中坚差距变化</span><strong id="perfGapChange">—</strong><small>P95−P65；负值才表示收窄</small></article>
+      </section>
+
+      <section class="chart-card card">
         <div class="card-head">
           <div>
-            <h2>所选赛季高薪球员</h2>
-            <p id="selectedSource">—</p>
+            <h3 id="performanceTrendTitle">BPM ≥ 0 的轮换球员占比</h3>
+            <p id="performanceTrendNote">固定人数后，数量变化可直接比较。</p>
           </div>
+          <div class="legend" aria-label="BPM 趋势图图例"><span class="legend-item"><span class="legend-line depth-line"></span>年度值</span><span class="legend-item"><span class="legend-line smooth"></span>5 年均值</span></div>
         </div>
-        <ol id="topEarners" class="top-list"></ol>
-        <div style="height: 12px"></div>
-        <div id="coverageNote" class="quality-note">—</div>
-      </aside>
+        <div class="chart-wrap horizontal-chart">
+          <svg id="performanceTrendChart" viewBox="0 0 1120 430" role="img" aria-label="NBA 固定轮换样本 BPM 分布趋势"></svg>
+          <div id="performanceTooltip" class="tooltip"></div>
+        </div>
+      </section>
+
+      <section class="distribution-grid">
+        <article class="chart-card card">
+          <div class="card-head">
+            <div><h3>逐赛季 BPM 分布热力图</h3><p>每一行都是一张使用相同分箱的直方图；颜色越深，该 BPM 区间的球员越多。</p></div>
+          </div>
+          <div class="chart-wrap heatmap-wrap horizontal-chart">
+            <svg id="performanceHeatmap" viewBox="0 0 760 760" role="img" aria-label="1998-99 至 2024-25 每赛季 BPM 直方图热力图"></svg>
+          </div>
+        </article>
+        <article class="chart-card card">
+          <div class="card-head">
+            <div><h3 id="histogramTitle">赛季分布对照</h3><p id="histogramSubtitle">使用相同人数与相同 BPM 分箱。</p></div>
+          </div>
+          <div class="chart-wrap histogram-wrap">
+            <svg id="performanceHistogram" viewBox="0 0 760 500" role="img" aria-label="两个赛季的 BPM 分布直方图"></svg>
+            <div id="histogramTooltip" class="tooltip"></div>
+          </div>
+          <div id="histogramStats" class="histogram-stats"></div>
+        </article>
+      </section>
+
+      <section class="card depth-interpretation">
+        <span class="section-kicker">Reading the evidence</span>
+        <h3>中坚层可以变强，同时明星尾部仍然更突出</h3>
+        <p id="performanceNarrative">—</p>
+        <p>
+          因此更严谨的表述是：固定轮换名额中的中位和中上段相对影响力有改善迹象，但数据并不必然支持“球星与中坚的领先幅度持续缩小”。这反而强化了薪资红利逻辑——球队既要承担昂贵球星，也要从受控合同中找到更多正向轮换分钟。
+        </p>
+      </section>
     </section>
 
-    <section class="table-card card">
-      <div class="card-head">
+    <section id="conclusion" class="story-section conclusion-section">
+      <div class="section-heading inverse-heading">
         <div>
-          <h2>年度明细</h2>
-          <p>同比变化单位为基尼系数点；0.010 相当于 1 个百分点。</p>
+          <span class="section-number">04</span>
+          <span class="section-kicker">Synthesis</span>
+          <h2>薪资红利的重要性，来自三种约束同时存在</h2>
         </div>
       </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>赛季</th>
-              <th>来源</th>
-              <th>样本数</th>
-              <th>Gini</th>
-              <th>同比</th>
-              <th>平均工资</th>
-              <th>中位数</th>
-              <th>最高工资</th>
-              <th>前 10% 占比</th>
-            </tr>
-          </thead>
-          <tbody id="annualTableBody"></tbody>
-        </table>
+      <div class="conclusion-grid">
+        <article><span>预算集中</span><strong id="conclusionGini">球星工资占用更集中</strong><p>同样的工资帽需要覆盖更少的高薪核心和更多的剩余阵容。</p></article>
+        <article><span>合同杠杆</span><strong id="conclusionContract">受控合同仍显著低于顶薪</strong><p>红利没有无限扩大，但它仍是补足轮换的主要低成本渠道。</p></article>
+        <article><span>人才深度</span><strong id="conclusionDepth">正向轮换产出更分散</strong><p>中坚层不再只是“填名单”，便宜且可用的球员能直接改变季后赛阵容。</p></article>
       </div>
+      <blockquote>
+        现代 NBA 的关键问题不是“要不要付球星顶薪”，而是：<strong>付完球星之后，还能否用低于市场价的合同装下足够多的正向影响力。</strong>
+      </blockquote>
     </section>
 
-    <section class="method-card card">
+    <section id="method" class="method-card card story-method">
       <div class="card-head">
-        <div>
-          <h2>方法与口径</h2>
-          <p>本页在浏览器内读取公开 CSV、清洗并实时复算，不依赖预先写死的图表数值。</p>
-        </div>
+        <div><span class="section-kicker">Methodology</span><h2>方法、来源与限制</h2><p>三组证据使用不同数据口径；页面刻意把制度指标、工资分布与表现代理分开。</p></div>
       </div>
 
       <details open>
-        <summary>时间边界、停摆与工资规则节点</summary>
+        <summary>合同红利的统一基准</summary>
         <div>
-          <p>
-            1998–99 是六个月停摆后的 50 场缩短赛季；1999 年 1 月达成新协议。图中将停摆赛季与 1999–00 首个完整赛季分开标记。1999 CBA 首次设置个人顶薪，同时提高底薪并增加工资帽例外。
-          </p>
-          <p>
-            2005 CBA 缩短最高合同期限并降低年涨幅；2011 停摆后，收入分配接近 50–50、奢侈税更严、最高合同缩短至五年；2017 CBA 引入指定老将续约（超级顶薪）和双向合同；2023 CBA 新增第二土豪线并加强对高支出球队的补强限制。
-          </p>
-          <p>
-            这些节点提供制度背景，但折线在节点附近的变化不是自动的因果证据。劳资协议资料：<a href="https://www.nbpa.com/cba" target="_blank" rel="noreferrer">NBPA CBA 页面</a>；停摆历史：<a href="https://www.nbpa.com/about" target="_blank" rel="noreferrer">NBPA 历史时间线</a>。
-          </p>
+          <p>状元工资采用当季第 1 顺位新秀工资表的 120% 首年金额。首轮秀可在工资表的 80%–120% 区间签约，120% 是常见基准。分母采用 CBA 规定的 10+ 年资最高工资额度，而不是当季某一份遗留合同的实际最高支付额。</p>
+          <p>底薪采用零年资球员的完整赛季标准合同最低工资。它不等同于十日合同、双向合同、赛季中途按比例支付或老将底薪的球队实际工资帽占用。</p>
+          <p>合同与工资帽表：<a href="https://basketball.realgm.com/nba/info/salary_cap" target="_blank" rel="noreferrer">RealGM Salary Cap / Minimum Scale</a>；新秀工资表：<a href="https://basketball.realgm.com/nba/info/rookie_scale" target="_blank" rel="noreferrer">RealGM Rookie Scale</a>。</p>
         </div>
       </details>
 
       <details>
-        <summary>转播合同、工资帽跳升与平滑</summary>
+        <summary>BPM、EPM 与“非球星变强”的边界</summary>
         <div>
-          <p>
-            2014 年签订的 Disney / Turner 九年全国媒体协议从 2016–17 起生效。由于当时未采用工资帽平滑，新增收入造成一次性工资帽跳升，使恰逢自由球员年份的球员获得明显的签约时点红利。
-          </p>
-          <p>
-            2024 年公布的新一轮 11 年媒体协议由 Disney、NBCUniversal 和 Amazon 承接，从 2025–26 起生效并持续至 2035–36。图中分别标记“协议公布”和“协议生效”。现行机制将工资帽年度增幅限制在平滑路径上，因此新增媒体收入预计分散到多个赛季，而不是重复 2016–17 的单年暴涨。
-          </p>
-          <p>
-            官方资料：<a href="https://pr.nba.com/nba-partnerships-walt-disney-company-turner-broadcasting-system/" target="_blank" rel="noreferrer">2014 媒体协议</a>；
-            <a href="https://pr.nba.com/nba-statement-salary-cap/" target="_blank" rel="noreferrer">2015 年工资帽平滑说明</a>；
-            <a href="https://pr.nba.com/nba-walt-disney-company-nbcuniversal-amazon-prime-video-media-agreements/" target="_blank" rel="noreferrer">2024 新媒体协议</a>。
-          </p>
+          <p>EPM 是较合适的现代影响力指标，但缺少一条从 1998–99 起、公开可复现且口径稳定的完整下载序列。本页改用 Basketball-Reference BPM，以换取 27 个赛季的一致历史覆盖。</p>
+          <p>BPM 是相对于联盟环境的估计，不是跨时代绝对篮球技能测验。这里能检验的是“当季固定轮换样本的分布形状是否变化”，不能直接证明 2025 年角色球员在绝对能力上一定强于 2000 年角色球员。</p>
+          <p>表现数据来自 Basketball-Reference 汇编的公开数据镜像；每季按总分钟排序后固定取 240 或 300 人。交易球员优先使用赛季合计行，否则按球队分钟对 BPM 加权。</p>
         </div>
       </details>
 
       <details>
-        <summary>数据拼接与去重</summary>
+        <summary>为什么偏度不是主指标</summary>
         <div>
-          <div class="quality-grid">
-            <div class="source-card">
-              <strong>1998–99 至 2017–18</strong>
-              <span>Basketball-Reference / data.world 数据的 GitHub 镜像</span>
-              <a href="https://github.com/aaronfrederick/B-Tier-Basketball-Career-Modeling/blob/21147a56ac066faff5eb573be2cffb38094b4e11/nba_salaries_1990_to_2018.csv" target="_blank" rel="noreferrer">查看历史数据文件</a>
-            </div>
-            <div class="source-card">
-              <strong>2018–19 至 2024–25</strong>
-              <span>NBA Player Salaries 2000–2025 的 GitHub 数据文件</span>
-              <a href="https://github.com/edwinjeon/NBA-Salary-Prediction/blob/main/data/NBA%20Player%20Salaries_2000-2025.csv" target="_blank" rel="noreferrer">查看近年数据文件</a>
-            </div>
-            <div class="source-card">
-              <strong>2025–26 可选补充</strong>
-              <span>UCB 数据演示项目；默认关闭，因来源和整理口径不同</span>
-              <a href="https://github.com/ucb-ds/nwdse-demo/blob/daa1398e063c34c0d065bc3f5ee1ba3302588831/nba-demo/salary_data_nba_2026.csv" target="_blank" rel="noreferrer">查看补充数据文件</a>
-            </div>
-            <div class="source-card">
-              <strong>清洗规则</strong>
-              <span>仅保留正数工资；同一球员同一赛季若重复出现，保留最高工资记录</span>
-              <span>2018–19 是主序列的数据源切换点，图表和表格均明确标示。</span>
-            </div>
-          </div>
+          <p>正偏度表示高值一侧的尾巴更长，可能只是少数超级球星更突出。即使均值为零，也不能推出超过零的球员更多。判断中坚层应优先看固定样本的中位数、65 分位数以及 BPM ≥ 0 的占比。</p>
+          <p>本页仍保留偏度切换项，用于观察分布尾部是否拉长，并同时报告 P95−P65 差距，避免把“更长的明星尾部”误读成“角色球员整体右移”。</p>
         </div>
       </details>
 
       <details>
-        <summary>基尼系数公式</summary>
+        <summary>工资基尼系数与数据源切换</summary>
         <div>
-          <p>将同一赛季的工资按从低到高排序为 <code>x(1), …, x(n)</code>，计算：</p>
-          <div class="formula">G = 2 × Σ[i × x(i)] / [n × Σx(i)] − (n + 1) / n</div>
-          <p style="margin-top:10px">Gini 等于 0 表示所有球员工资完全相同；越接近 1，工资越集中在少数高薪球员。对同一赛季全部工资做统一通胀换算不会改变 Gini。</p>
+          <p>1998–99 至 2017–18 使用 Basketball-Reference / data.world 工资数据镜像；2018–19 起使用另一份公开工资文件。基尼对同一赛季统一的货币缩放不敏感，但名单覆盖、短期支付和去重规则仍会影响结果。</p>
+          <p>因此提供全部记录、最高薪 450 人和最高薪 360 人三种口径，并在 2018–19 标出数据源切换。年度折线属于描述性证据，不是 CBA、停摆或媒体合同的因果估计。</p>
         </div>
       </details>
 
       <details>
-        <summary>为何提供“最高薪 450 人 / 360 人”口径</summary>
-        <div>
-          <p>
-            不同年份的数据文件对十日合同、双向合同、赛季中途合同、被裁合同和极小额支付的覆盖并不完全一致。名单尾部记录数量扩张会机械性推高全样本 Gini。
-          </p>
-          <p>
-            固定比较每季最高薪 450 人或 360 人，可弱化下端覆盖变化；但这属于敏感性分析，不应替代全样本结果。建议同时观察三种口径，而不是只引用一条折线。
-          </p>
-        </div>
-      </details>
-
-      <details>
-        <summary>解释限制</summary>
+        <summary>关键制度与媒体节点</summary>
         <div>
           <ul>
-            <li>这是球员工资分布，不是球队总工资之间的分布，也不是球员财富或收入的完整衡量。</li>
-            <li>数据源在 2018–19 发生切换，绝对水平的突变需要谨慎解读。</li>
-            <li>停摆、缩水赛季、工资帽跳升、最低工资、顶薪规则、双向合同和名单制度都会改变分布。</li>
-            <li>基尼上升不等于低薪球员名义工资下降；只要顶端增长更快，即使中位数上涨，Gini 仍可提高。</li>
-            <li>折线属于描述性统计；识别 CBA 或媒体合同的因果影响需要结构断点、对照组或更完整的制度模型。</li>
+            <li>1998–99：停摆与 50 场缩水赛季；1999 CBA 随后引入个人顶薪并调整底薪及例外。</li>
+            <li>2005 CBA：缩短最高合同期限、降低涨幅，并提高选秀最低年龄。</li>
+            <li>2011：停摆与 66 场赛季；收入分配和累进奢侈税结构改变。</li>
+            <li>2016–17：2014 年 Disney / Turner 媒体协议生效，工资帽在未平滑情况下大幅跳升。</li>
+            <li>2017 CBA：指定老将续约（超级顶薪）与双向合同实施。</li>
+            <li>2023 CBA：第一、第二土豪线和更严格的高支出球队限制。</li>
+            <li>2025–26：Disney、NBCUniversal、Amazon 的 11 年媒体协议生效；工资帽按现行机制平滑增长。</li>
           </ul>
         </div>
       </details>
+
+      <div class="source-grid">
+        <a href="https://github.com/aaronfrederick/B-Tier-Basketball-Career-Modeling/blob/21147a56ac066faff5eb573be2cffb38094b4e11/nba_salaries_1990_to_2018.csv" target="_blank" rel="noreferrer"><strong>历史工资</strong><span>1998–99 至 2017–18</span></a>
+        <a href="https://github.com/edwinjeon/NBA-Salary-Prediction/blob/main/data/NBA%20Player%20Salaries_2000-2025.csv" target="_blank" rel="noreferrer"><strong>近年工资</strong><span>2018–19 至 2024–25</span></a>
+        <a href="https://github.com/cmuchina3/nba-stats-1947-present-curated/blob/main/data/raw/Advanced.csv" target="_blank" rel="noreferrer"><strong>BPM 数据</strong><span>Basketball-Reference 汇编</span></a>
+        <a href="./data/story-data.json" target="_blank" rel="noreferrer"><strong>生成数据</strong><span>合同与表现指标 JSON</span></a>
+        <a href="./build-story-data.py" target="_blank" rel="noreferrer"><strong>复算脚本</strong><span>Python 标准库，可审计</span></a>
+      </div>
     </section>
   </main>
 
   <footer>
     <div class="shell footer-row">
-      <span>交互网页：NBA 球员工资基尼系数</span>
-      <span>数据在本地浏览器中处理；可用“下载年度 CSV”导出当前口径。</span>
+      <span>NBA VALUE LAB · 为什么 NBA 的薪资红利越来越重要</span>
+      <span id="dataTimestamp">数据更新时间：—</span>
     </div>
   </footer>
 
   <script src="./app-core.js"></script>
   <script src="./app-ui.js"></script>
-  <script src="./enhancements.js?v=20260903"></script>
+  <script src="./enhancements.js?v=20260903-2"></script>
+  <script src="./story.js?v=20260903-2"></script>
 </body>
 </html>
