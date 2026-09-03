@@ -1,4 +1,4 @@
-name: Deploy NBA salary-value story
+name: Finalize NBA salary-value story data
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  finalize:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -23,28 +23,36 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore and validate the site payload
+      - name: Complete the historical rookie-scale series
+        run: python nba-salary-gini/fix-rookie-scale.py
+
+      - name: Validate code and rebuild public data
         run: |
-          cat nba-salary-gini/.deploy-payload-* | tr -d '\n\r\t ' | base64 --decode > /tmp/nba-story.tar.gz
-          tar -xzf /tmp/nba-story.tar.gz -C .
           python -m py_compile nba-salary-gini/build-story-data.py
           node --check nba-salary-gini/story.js
-          test -s nba-salary-gini/index.html
-          test -s nba-salary-gini/story.css
+          python nba-salary-gini/build-story-data.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
 
-      - name: Rebuild compact public data
-        run: python nba-salary-gini/build-story-data.py
+          payload = json.loads(Path("nba-salary-gini/data/story-data.json").read_text())
+          contracts = payload["value_contracts"]
+          assert payload["schema_version"] == 2
+          assert len(contracts) == 28
+          assert [row["end_year"] for row in contracts] == list(range(1999, 2027))
+          assert all(row["rookie_scale_100"] for row in contracts)
+          assert all(row["no1_salary_120"] for row in contracts)
+          assert all(row["maximum_10_yos"] for row in contracts)
+          assert all(row["minimum_0_yos"] for row in contracts)
+          assert len(payload["performance"]) >= 25
+          print("Validated 28 contract seasons and", len(payload["performance"]), "BPM seasons")
+          PY
 
-      - name: Commit the completed story
+      - name: Commit completed data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git rm nba-salary-gini/.deploy-payload-*
-          git add \
-            nba-salary-gini/index.html \
-            nba-salary-gini/story.css \
-            nba-salary-gini/story.js \
-            nba-salary-gini/build-story-data.py \
-            nba-salary-gini/data/story-data.json
-          git commit -m "Reframe NBA dashboard around salary surplus value"
+          git rm nba-salary-gini/fix-rookie-scale.py
+          git add nba-salary-gini/build-story-data.py nba-salary-gini/data/story-data.json
+          git commit -m "Complete NBA rookie-scale salary series"
           git push
