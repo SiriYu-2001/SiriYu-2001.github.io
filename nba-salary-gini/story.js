@@ -479,14 +479,14 @@
     });
     if (medianPoints.length > 1) {
       svg.appendChild(node("path", { d: path(medianPoints), fill: "none", stroke: css("--surface-solid"), "stroke-width": 5.2, opacity: .78, "stroke-linecap": "round", "stroke-linejoin": "round" }));
-      svg.appendChild(node("path", { d: path(medianPoints), fill: "none", stroke: css("--story-gold"), "stroke-width": 2.4, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+      svg.appendChild(node("path", { d: path(medianPoints), fill: "none", stroke: css("--story-gold"), "stroke-width": 2.4, "stroke-dasharray": "5 4", "stroke-linecap": "round", "stroke-linejoin": "round" }));
       medianPoints.forEach((point, index) => {
         const selected = rows[index].end_year === story.performanceYear;
         const dot = node("circle", { cx: point[0], cy: point[1], r: selected ? 4.2 : 2.3, fill: css("--story-gold"), stroke: css("--surface-solid"), "stroke-width": selected ? 1.6 : .8 });
         dot.appendChild(node("title", {}, `${rows[index].season} · BPM 中位数 ${signed(sampleMetric(rows[index]).median, 2)}`));
         svg.appendChild(dot);
       });
-      svg.appendChild(node("line", { x1: margin.left + 8, y1: 17, x2: margin.left + 38, y2: 17, stroke: css("--story-gold"), "stroke-width": 2.4 }));
+      svg.appendChild(node("line", { x1: margin.left + 8, y1: 17, x2: margin.left + 38, y2: 17, stroke: css("--story-gold"), "stroke-width": 2.4, "stroke-dasharray": "5 4" }));
       svg.appendChild(node("text", { x: margin.left + 45, y: 21, fill: css("--muted"), "font-size": 10.5, "font-weight": 720 }, "每季 BPM 中位数"));
     }
 
