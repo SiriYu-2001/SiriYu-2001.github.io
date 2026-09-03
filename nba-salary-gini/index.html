@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="NBA 球员工资基尼系数交互式网页：1998–99 停摆过渡期以来的年度变化、固定人数稳健性检验、洛伦兹曲线和明细表。" />
+  <title>NBA 球员工资基尼系数｜交互式分析</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="shell">
+      <span class="eyebrow">NBA Salary Distribution</span>
+      <h1>NBA 球员工资基尼系数</h1>
+      <p>
+        从 1998–99 停摆过渡期开始，按赛季计算球员工资分配的基尼系数，并通过固定人数样本、洛伦兹曲线和年度明细检查趋势是否稳健。
+      </p>
+      <div class="hero-meta">
+        <span class="meta-pill">主序列：1998–99 至 2024–25</span>
+        <span class="meta-pill">可选：2025–26 补充点</span>
+        <span class="meta-pill">浏览器端实时计算</span>
+        <span class="meta-pill">无需上传到服务器</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div id="status" class="status" data-state="loading" role="status" aria-live="polite">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span id="statusText">正在读取工资数据并计算年度基尼系数……</span>
+      <label id="uploadLabel" class="file-button hidden" for="fileInput">选择本地 CSV</label>
+      <input id="fileInput" class="hidden" type="file" accept=".csv,text/csv" multiple />
+    </div>
+
+    <section class="toolbar card" aria-label="分析控制项">
+      <div class="field">
+        <label for="sampleMode">样本口径</label>
+        <select id="sampleMode">
+          <option value="all">全部列示球员</option>
+          <option value="top450">每季最高薪 450 人</option>
+          <option value="top360">每季最高薪 360 人</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="smoothWindow">平滑</label>
+        <select id="smoothWindow">
+          <option value="0">不平滑</option>
+          <option value="3" selected>3 年居中均值</option>
+          <option value="5">5 年居中均值</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="startSeason">起始赛季</label>
+        <select id="startSeason"></select>
+      </div>
+      <div class="field">
+        <label for="endSeason">结束赛季</label>
+        <select id="endSeason"></select>
+      </div>
+      <div class="field wide">
+        <span class="field-title">显示项</span>
+        <div class="check-row">
+          <label><input id="showMilestones" type="checkbox" checked /> CBA 节点</label>
+          <label><input id="include2026" type="checkbox" /> 2025–26 补充点</label>
+        </div>
+      </div>
+      <div class="field wide" style="grid-column: span 2;">
+        <span class="field-title">导出</span>
+        <div class="actions">
+          <button id="downloadCsv" class="button primary" type="button">下载年度 CSV</button>
+          <button id="downloadSvg" class="button" type="button">下载趋势图 SVG</button>
+          <button id="refreshData" class="button" type="button">重新读取</button>
+          <button id="themeButton" class="button icon" type="button" title="切换深色模式" aria-label="切换深色模式">◐</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="kpis" aria-label="关键指标">
+      <article class="kpi card">
+        <div class="kpi-label">1999 CBA 后首个完整赛季</div>
+        <div id="kpiStart" class="kpi-value">—</div>
+        <div id="kpiStartNote" class="kpi-note">1999–00</div>
+      </article>
+      <article class="kpi card">
+        <div class="kpi-label">当前区间最新值</div>
+        <div id="kpiLatest" class="kpi-value">—</div>
+        <div id="kpiLatestNote" class="kpi-note">—</div>
+      </article>
+      <article class="kpi card">
+        <div class="kpi-label">当前区间峰值</div>
+        <div id="kpiPeak" class="kpi-value">—</div>
+        <div id="kpiPeakNote" class="kpi-note">—</div>
+      </article>
+      <article class="kpi card">
+        <div class="kpi-label">首个完整赛季至最新</div>
+        <div id="kpiChange" class="kpi-value">—</div>
+        <div id="kpiChangeNote" class="kpi-note">基尼系数变化</div>
+      </article>
+    </section>
+
+    <section class="chart-card card">
+      <div class="card-head">
+        <div>
+          <h2>年度变化</h2>
+          <p id="chartSubtitle">点击任意数据点查看该赛季的工资分布。</p>
+        </div>
+        <div class="legend" aria-label="图例">
+          <span class="legend-item"><span class="legend-line"></span>年度 Gini</span>
+          <span id="smoothLegend" class="legend-item"><span class="legend-line smooth"></span>3 年均值</span>
+          <span class="legend-item"><span class="legend-line milestone"></span>CBA / 来源节点</span>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <svg id="trendChart" viewBox="0 0 1120 500" role="img" aria-label="NBA 球员工资年度基尼系数折线图"></svg>
+        <div id="trendTooltip" class="tooltip"></div>
+      </div>
+    </section>
+
+    <section class="details-grid">
+      <article class="detail-card card">
+        <div class="card-head">
+          <div>
+            <h2 id="selectedSeasonTitle">赛季分布</h2>
+            <p>洛伦兹曲线越远离 45° 平等线，工资分布越不均衡。</p>
+          </div>
+        </div>
+        <div class="season-summary">
+          <div class="mini-stat"><span>Gini</span><strong id="detailGini">—</strong></div>
+          <div class="mini-stat"><span>样本数</span><strong id="detailN">—</strong></div>
+          <div class="mini-stat"><span>工资中位数</span><strong id="detailMedian">—</strong></div>
+          <div class="mini-stat"><span>前 10% 占比</span><strong id="detailTop10">—</strong></div>
+        </div>
+        <div class="lorenz-wrap">
+          <svg id="lorenzChart" viewBox="0 0 720 360" role="img" aria-label="所选赛季工资洛伦兹曲线"></svg>
+        </div>
+      </article>
+
+      <aside class="detail-card card">
+        <div class="card-head">
+          <div>
+            <h2>所选赛季高薪球员</h2>
+            <p id="selectedSource">—</p>
+          </div>
+        </div>
+        <ol id="topEarners" class="top-list"></ol>
+        <div style="height: 12px"></div>
+        <div id="coverageNote" class="quality-note">—</div>
+      </aside>
+    </section>
+
+    <section class="table-card card">
+      <div class="card-head">
+        <div>
+          <h2>年度明细</h2>
+          <p>同比变化单位为基尼系数点；0.010 相当于 1 个百分点。</p>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>赛季</th>
+              <th>来源</th>
+              <th>样本数</th>
+              <th>Gini</th>
+              <th>同比</th>
+              <th>平均工资</th>
+              <th>中位数</th>
+              <th>最高工资</th>
+              <th>前 10% 占比</th>
+            </tr>
+          </thead>
+          <tbody id="annualTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="method-card card">
+      <div class="card-head">
+        <div>
+          <h2>方法与口径</h2>
+          <p>本页在浏览器内读取公开 CSV、清洗并实时复算，不依赖预先写死的图表数值。</p>
+        </div>
+      </div>
+
+      <details open>
+        <summary>时间边界与 CBA 节点</summary>
+        <div>
+          <p>
+            1998–99 是六个月停摆后的 50 场缩短赛季；1999 年 1 月达成新协议。因而图中保留 1998–99 作为过渡观察点，并把 1999–00 视为该协议下首个完整赛季。
+          </p>
+          <p>
+            其他参考线标示 2005–06、2011–12、2017–18 和 2023–24 等协议阶段。节点用于提供制度背景，不代表折线在该处的变化可以直接解释为 CBA 的因果效果。
+          </p>
+          <p>劳资协议资料：<a href="https://nbpa.com/cba" target="_blank" rel="noreferrer">NBPA CBA 页面</a>；历史背景：<a href="https://nbpa.com/about" target="_blank" rel="noreferrer">NBPA 历史时间线</a>。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>数据拼接与去重</summary>
+        <div>
+          <div class="quality-grid">
+            <div class="source-card">
+              <strong>1998–99 至 2017–18</strong>
+              <span>Basketball-Reference / data.world 数据的 GitHub 镜像</span>
+              <a href="https://github.com/aaronfrederick/B-Tier-Basketball-Career-Modeling/blob/21147a56ac066faff5eb573be2cffb38094b4e11/nba_salaries_1990_to_2018.csv" target="_blank" rel="noreferrer">查看历史数据文件</a>
+            </div>
+            <div class="source-card">
+              <strong>2018–19 至 2024–25</strong>
+              <span>NBA Player Salaries 2000–2025 的 GitHub 数据文件</span>
+              <a href="https://github.com/edwinjeon/NBA-Salary-Prediction/blob/main/data/NBA%20Player%20Salaries_2000-2025.csv" target="_blank" rel="noreferrer">查看近年数据文件</a>
+            </div>
+            <div class="source-card">
+              <strong>2025–26 可选补充</strong>
+              <span>UCB 数据演示项目；默认关闭，因来源和整理口径不同</span>
+              <a href="https://github.com/ucb-ds/nwdse-demo/blob/daa1398e063c34c0d065bc3f5ee1ba3302588831/nba-demo/salary_data_nba_2026.csv" target="_blank" rel="noreferrer">查看补充数据文件</a>
+            </div>
+            <div class="source-card">
+              <strong>清洗规则</strong>
+              <span>仅保留正数工资；同一球员同一赛季若重复出现，保留最高工资记录</span>
+              <span>2018–19 是主序列的数据源切换点，图表和表格均明确标示。</span>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>基尼系数公式</summary>
+        <div>
+          <p>将同一赛季的工资按从低到高排序为 <code>x(1), …, x(n)</code>，计算：</p>
+          <div class="formula">G = 2 × Σ[i × x(i)] / [n × Σx(i)] − (n + 1) / n</div>
+          <p style="margin-top:10px">Gini 等于 0 表示所有球员工资完全相同；越接近 1，工资越集中在少数高薪球员。对同一赛季全部工资做统一通胀换算不会改变 Gini。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>为何提供“最高薪 450 人 / 360 人”口径</summary>
+        <div>
+          <p>
+            不同年份的数据文件对十日合同、双向合同、赛季中途合同、被裁合同和极小额支付的覆盖并不完全一致。名单尾部记录数量扩张会机械性推高全样本 Gini。
+          </p>
+          <p>
+            固定比较每季最高薪 450 人或 360 人，可弱化下端覆盖变化；但这属于敏感性分析，不应替代全样本结果。建议同时观察三种口径，而不是只引用一条折线。
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>解释限制</summary>
+        <div>
+          <ul>
+            <li>这是球员工资分布，不是球队总工资之间的分布，也不是球员财富或收入的完整衡量。</li>
+            <li>数据源在 2018–19 发生切换，绝对水平的突变需要谨慎解读。</li>
+            <li>停摆、缩水赛季、工资帽跳升、最低工资、顶薪规则、双向合同和名单制度都会改变分布。</li>
+            <li>折线属于描述性统计；识别 CBA 的因果影响需要结构断点、对照组或更完整的制度模型。</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-row">
+      <span>交互网页：NBA 球员工资基尼系数</span>
+      <span>数据在本地浏览器中处理；可用“下载年度 CSV”导出当前口径。</span>
+    </div>
+  </footer>
+
+  <script src="./app-core.js"></script>
+  <script src="./app-ui.js"></script>
+</body>
+</html>
