@@ -365,3 +365,29 @@ html[data-theme="dark"] .hero-equation strong { color: #0f1722; background: #e8f
   .story-section { margin-bottom: 28px; }
   .conclusion-section { color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
+
+/* MOBILE_OVERFLOW_FIX: keep wide timelines locally scrollable without widening the document. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.story-section,
+.chart-card,
+.detail-card,
+.data-details,
+.contract-ladder-card,
+.implication-card,
+.distribution-grid > * {
+  min-width: 0;
+}
+
+.horizontal-chart,
+.table-scroll {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
