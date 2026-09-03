@@ -1,0 +1,63 @@
+name: Fix NBA story mobile overflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/fix-nba-mobile-overflow.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Contain wide charts and tables on mobile
+        run: |
+          if ! grep -q "MOBILE_OVERFLOW_FIX" nba-salary-gini/story.css; then
+            cat >> nba-salary-gini/story.css <<'CSS'
+
+          /* MOBILE_OVERFLOW_FIX: keep wide timelines locally scrollable without widening the document. */
+          html,
+          body {
+            max-width: 100%;
+            overflow-x: hidden;
+          }
+
+          .story-section,
+          .chart-card,
+          .detail-card,
+          .data-details,
+          .contract-ladder-card,
+          .implication-card,
+          .distribution-grid > * {
+            min-width: 0;
+          }
+
+          .horizontal-chart,
+          .table-scroll {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+          }
+          CSS
+          fi
+          grep -q "MOBILE_OVERFLOW_FIX" nba-salary-gini/story.css
+          node --check nba-salary-gini/story.js
+
+      - name: Commit responsive fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add nba-salary-gini/story.css
+          git commit -m "Contain NBA story charts on mobile"
+          git push
