@@ -22,3 +22,7 @@ Mini-IPIP is independently reverse-keyed and scored, never mapped to MBTI letter
 No norms, accuracy claims or diagnostic interpretation. Translations and fusion have not been independently validated. Results exist only in page memory.
 
 Future validation requires translation review, cognitive interviews, independent sample testing, item analysis and retest reliability. This release does not collect participant data.
+
+Staged versions: 32 (base only), 64 (base + extension), 84 (+ Mini-IPIP).
+Only the selected complete modules are scored. Unanswered modules are never imputed.
+Base-only uses the same +/-0.125 boundary display rule; original strict-threshold type is available separately. Switching versions retains answers only in current page memory. Restart clears all versions and returns to the 32-item version.

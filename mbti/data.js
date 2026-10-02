@@ -61,10 +61,11 @@ O:[['我有生动丰富的想象力',1,'Have a vivid imagination.'],['我很难�
 const QUESTIONS = BASE.map((q,i)=>({id:'base-'+(i+1),left:q[0],right:q[1],dim:q[2],sign:q[3],source:'base',ref:'OEJTS 1.2 · Q'+(i+1)}));
 for(let i=0;i<8;i++) for(const dim of ['IE','SN','FT','JP']) {const q=EXT[dim][i];QUESTIONS.push({id:`ext-${dim}-${i+1}`,left:q[0],right:q[1],dim,sign:q[2],english:q[3],sourceDifference:q[4],source:'ext',ref:'开放开发题池 · '+dim+' '+(i+1)});}
 for(let i=0;i<4;i++) for(const dim of ['E','A','C','N','O']) {const q=MINI[dim][i];QUESTIONS.push({id:`mini-${dim}-${i+1}`,statement:q[0],left:'非常不符合',right:'非常符合',dim,sign:q[1],english:q[2],source:'mini',ref:'Mini-IPIP · '+dim+' '+(i+1)});}
-function scoreAnswers(answers){
- if(QUESTIONS.some(q=>!Number.isInteger(answers[q.id])||answers[q.id]<1||answers[q.id]>5))throw new Error('请完成全部 84 道题后查看结果。');
+function scoreAnswers(answers,total=84){
+ if(![32,64,84].includes(total))throw new Error('无效的测试版本。');
+ if(QUESTIONS.slice(0,total).some(q=>!Number.isInteger(answers[q.id])||answers[q.id]<1||answers[q.id]>5))throw new Error(`请完成当前版本的 ${total} 道题后查看结果。`);
  const value=(source,dim)=>{const qs=QUESTIONS.filter(q=>q.source===source&&q.dim===dim);return qs.reduce((sum,q)=>sum+(answers[q.id]-3)*q.sign,0)/(2*qs.length);};
- const dimensions=['IE','SN','FT','JP'].map(dim=>{const base=value('base',dim),ext=value('ext',dim),fused=(base+ext)/2;const conflict=base*ext<0;const boundary=Math.abs(fused)<=0.125;return {dim,base,ext,fused,conflict,boundary,letter:conflict||boundary?'X':dim[fused>0?1:0],baseRaw:24+16*base};});
- return {dimensions,type:dimensions.map(d=>d.letter).join(''),mini:['E','A','C','N','O'].map(dim=>({dim,score:50+50*value('mini',dim)}))};
+ const dimensions=['IE','SN','FT','JP'].map(dim=>{const base=value('base',dim),ext=total>=64?value('ext',dim):null,fused=total>=64?(base+ext)/2:base;const conflict=total>=64&&base*ext<0;const boundary=Math.abs(fused)<=0.125;return {dim,base,ext,fused,conflict,boundary,letter:conflict||boundary?'X':dim[fused>0?1:0],baseRaw:24+16*base};});
+ return {total,dimensions,type:dimensions.map(d=>d.letter).join(''),mini:total===84?['E','A','C','N','O'].map(dim=>({dim,score:50+50*value('mini',dim)})):[]};
 }
 if(typeof module!=='undefined')module.exports={QUESTIONS,scoreAnswers};
