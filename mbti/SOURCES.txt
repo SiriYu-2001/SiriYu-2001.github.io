@@ -1,0 +1,24 @@
+心向 · MBTI 人格探索
+
+84-item experimental Chinese questionnaire: 32 OEJTS 1.2 items, 32 editorial selections from its public development pool, and 20 independent Mini-IPIP items.
+
+Sources and licensing:
+Eric Jorgenson, Open Extended Jungian Type Scales 1.2 (2015):
+https://openpsychometrics.org/tests/OJTS/development/OEJTS1.2.pdf
+Development pool:
+https://openpsychometrics.org/tests/OJTS/development/
+OEJTS items, development pool and Chinese adaptations: CC BY-NC-SA 4.0.
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+Mini-IPIP original items and scales: public domain.
+https://ipip.ori.org/MiniIPIPKey.htm
+https://ipip.ori.org/
+Donnellan, Oswald, Baird & Lucas (2006), Psychological Assessment 18, 192–203.
+
+The site-created combined questionnaire and translations are provided under CC BY-NC-SA 4.0. Original public-domain items retain that status.
+
+Algorithm version: exploratory-fusion-v1
+Every base and extension dimension has eight items. Center ratings at 3, apply source direction, average and divide by 2. Average the two modules with fixed 50/50 weights. This is not a trained ensemble. Both modules share provenance and are not independent measures. Display X if the module signs conflict or absolute fused score is at most 0.125. These are editorial uncertainty rules, not validated confidence intervals.
+Mini-IPIP is independently reverse-keyed and scored, never mapped to MBTI letters. Each four-item mean is mapped by (mean-1)*25.
+No norms, accuracy claims or diagnostic interpretation. Translations and fusion have not been independently validated. Results exist only in page memory.
+
+Future validation requires translation review, cognitive interviews, independent sample testing, item analysis and retest reliability. This release does not collect participant data.
